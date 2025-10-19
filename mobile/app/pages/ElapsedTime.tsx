@@ -1,29 +1,103 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Progress from "react-native-progress";
 import TopBar from '@/components/TopBar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Checkout } from '@/utils/stripeCheckout';
+import * as Linking from 'expo-linking';
+
+const STORAGE_KEY = '@roam_remaining_time';
 
 export default function ActiveSessionScreen() {
-  const [remainingTime, setRemainingTime] = useState(5 * 60); // 5 minutes
+  const [remainingTime, setRemainingTime] = useState(0);
   const [autoExtend, setAutoExtend] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
+    // Load saved time from storage
+    const loadSavedTime = async () => {
+      try {
+        const savedTime = await AsyncStorage.getItem(STORAGE_KEY);
+        if (savedTime) {
+          setRemainingTime(parseInt(savedTime));
+        }
+      } catch (error) {
+        console.error('Error loading saved time:', error);
+      }
+    };
+    loadSavedTime();
+
+    // Start the timer
     const timer = setInterval(() => {
-      setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
+      setRemainingTime((prev) => {
+        const newTime = prev > 0 ? prev - 1 : 0;
+        // Save the new time to storage
+        AsyncStorage.setItem(STORAGE_KEY, String(newTime)).catch((error: Error) => 
+          console.error('Error saving time:', error)
+        );
+        return newTime;
+      });
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
   const minutes = Math.floor(remainingTime / 60);
   const seconds = remainingTime % 60;
-  const progress = remainingTime / (5 * 60);
+  // Calculate progress based on the maximum purchased time
+  const maxTime = Math.max(90 * 60, remainingTime); // Use 90 minutes or current time, whichever is larger
+  const progress = remainingTime / maxTime;
 
   const purchaseOptions = [
-    { label: "30 min", price: "$0.50" },
-    { label: "60 min", price: "$1.00" },
-    { label: "90 min", price: "$1.50" },
+    { label: "30 min", price: "$0.50", minutes: 30, priceId: "price_30min" },
+    { label: "60 min", price: "$1.00", minutes: 60, priceId: "price_60min" },
+    { label: "90 min", price: "$1.50", minutes: 90, priceId: "price_90min" },
   ];
+
+  const addTime = async (minutes: number) => {
+    const additionalSeconds = minutes * 60;
+    const newTime = remainingTime + additionalSeconds;
+    setRemainingTime(newTime);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, String(newTime));
+    } catch (error) {
+      console.error('Error saving new time:', error);
+    }
+  };
+
+  const handlePurchase = async (option: { minutes: number; priceId: string }) => {
+    if (isProcessingPayment) return;
+    
+    try {
+      setIsProcessingPayment(true);
+      await Checkout(option.priceId);
+      // Time will be added when the webhook confirms the payment
+      // and the app receives the success URL
+    } catch (error) {
+      console.error('Payment error:', error);
+      Alert.alert('Error', 'Failed to process payment. Please try again.');
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // Handle URL when app opens from Stripe redirect
+  useEffect(() => {
+    const handleUrl = async (url: string) => {
+      if (url.includes('checkout-success')) {
+        const params = Linking.parse(url).queryParams as { minutes?: string };
+        if (params.minutes) {
+          const minutes = parseInt(params.minutes, 10);
+          if (!isNaN(minutes)) {
+            await addTime(minutes);
+          }
+        }
+      }
+    };
+
+    // Listen for when the app opens from a URL
+    Linking.addEventListener('url', ({ url }) => handleUrl(url));
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -59,15 +133,16 @@ export default function ActiveSessionScreen() {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Keep your connection going</Text>
               {purchaseOptions.map((option) => (
-                <TouchableOpacity key={option.label} style={styles.optionButton}>
+                <TouchableOpacity 
+                  key={option.label} 
+                  style={[styles.optionButton, isProcessingPayment && styles.disabledButton]}
+                  onPress={() => handlePurchase(option)}
+                  disabled={isProcessingPayment}
+                >
                   <Text style={styles.optionText}>{option.label}</Text>
                   <Text style={styles.priceText}>{option.price}</Text>
                 </TouchableOpacity>
               ))}
-
-              <TouchableOpacity style={styles.purchaseButton}>
-                <Text style={styles.purchaseText}>Purchase More Time</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -81,6 +156,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff5fa",
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
   safeArea: {
     flex: 1,
