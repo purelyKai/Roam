@@ -38,6 +38,12 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Roam to use your location."
         }
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.466033117237-j9tbq92puccbv6820v0bj8307jb2co34"
+        }
       ]
     ],
     "experiments": {
