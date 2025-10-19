@@ -35,9 +35,9 @@ export default function Index() {
             minWidth: 200,
           }}
         >
-          <Text style={{ color: 'white', textAlign: 'center', fontSize: 16, fontWeight: '600' }}>
+          {/* <Text style={{ color: 'white', textAlign: 'center', fontSize: 16, fontWeight: '600' }}>
             Test Starbucks WiFi
-          </Text>
+          </Text> */}
         </Pressable>
 
         <Button 
