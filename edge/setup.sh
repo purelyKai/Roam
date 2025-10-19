@@ -164,6 +164,7 @@ User=root
 WorkingDirectory=/home/admin/Roam/edge
 Environment="BACKEND_URL=$BACKEND_URL"
 Environment="PI_DEVICE_ID=$PI_DEVICE_ID"
+Environment="API_PORT=$API_PORT"
 ExecStart=/home/admin/Roam/edge/edge
 Restart=always
 RestartSec=5
