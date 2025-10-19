@@ -22,14 +22,36 @@ fi
 
 # 4) Build the Go agent (the brain that controls nftables/hostapd/tc).
 if ! command -v go &> /dev/null; then
-  echo "Error: Go is not installed. Install it first."
-  exit 1
+  echo "Go not found. Installing Go 1.21.5 for arm64..."
+  GO_VERSION="1.21.5"
+  GO_TARBALL="go${GO_VERSION}.linux-arm64.tar.gz"
+
+  wget "https://go.dev/dl/${GO_TARBALL}" -O "/tmp/${GO_TARBALL}"
+  sudo rm -rf /usr/local/go
+  sudo tar -C /usr/local -xzf "/tmp/${GO_TARBALL}"
+  rm "/tmp/${GO_TARBALL}"
+
+  export PATH=$PATH:/usr/local/go/bin
+  echo 'export PATH=$PATH:/usr/local/go/bin' | sudo tee -a /etc/profile.d/go.sh
+
+  if ! command -v go &> /dev/null; then
+      echo "Error: Go installation failed."
+      exit 1
+  fi
+
+  echo "Go ${GO_VERSION} installed successfully."
 fi
 
+# Initialize Go module if not present
+if [ ! -f "go.mod" ]; then
+  echo "Initializing Go module..."
+  go mod init roam/edge/net-agent
+fi
+
+mkdir -p bin
 if [ ! -f "bin/agent" ]; then
   echo "Building Go agent..."
   go build -o bin/agent ./cmd/agent
-  # WHY: grant just enough capability so the agent can touch network without full root.
   sudo setcap cap_net_admin,cap_net_raw+ep ./bin/agent || true
 fi
 
