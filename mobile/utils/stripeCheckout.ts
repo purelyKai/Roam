@@ -30,7 +30,7 @@ export async function Checkout(priceId: string, qty = 1): Promise<void> {
   const url = (await res.text()).trim();
 
   try {
-    await WebBrowser.openAuthSessionAsync(url, "roam://home");
+    await WebBrowser.openAuthSessionAsync(url, "https://www.google.com"); // todo - URI to detect browser returning to app
   } catch {
     await Linking.openURL(url);
   }
