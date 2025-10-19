@@ -12,7 +12,7 @@ EnvironmentFile=/home/pi/Roam/edge/net-agent/.env
 ExecStart=/home/pi/Roam/edge/net-agent/bin/llama-server \
   -m /home/pi/Roam/edge/net-agent/models/${LLAMA_MODEL} \
   -c ${LLAMA_CTX:-2048} -t ${LLAMA_THREADS:-4} --host 127.0.0.1 --port ${LLAMA_PORT:-8080} \
-  --kv-type ${LLAMA_KV_TYPE:-q8_0} --log-disable
+  --log-disable
 User=pi
 Restart=always
 RestartSec=2
