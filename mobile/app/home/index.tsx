@@ -1,10 +1,13 @@
 
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TopBar from '../../components/TopBar';
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import * as Location from 'expo-location';
+import useGetPins, { Pin } from "@/hooks/getPins";
+import BusinessModal from '@/components/BusinessModal';
 
 export default function Index() {
 	const initialRegion = {
@@ -15,7 +18,10 @@ export default function Index() {
 	};
 
     const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [selectedPin, setSelectedPin] = useState<Pin | null>(null); 
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const hasActiveConnection = true;
+    const { pins } = useGetPins(location ? { lat: location.coords.latitude, lng: location.coords.longitude, radius: 2500 } : null);
 
     useEffect(() => {
         async function getCurrentLocation() {
@@ -33,54 +39,48 @@ export default function Index() {
         getCurrentLocation();
     }, []);
 
+    if (!location) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading map...</Text>
+            </View>
+        );
+    }
+
 	return (
 		<SafeAreaView style={styles.container}>
-			<View style={styles.topBar}>
-				<Text style={styles.title}>Roam</Text>
-				<Text style={styles.subtitle}>Explore the map</Text>
-			</View>
+      <TopBar hasActiveConnection={hasActiveConnection} showBackButton={false} />
 
 			<MapView
 				style={styles.map}
 				provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
-				initialRegion={initialRegion}
+				initialRegion={ { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0122, longitudeDelta: 0.0122 } }
 				showsUserLocation={true}
 				showsMyLocationButton={true}
 			>
-				<Marker
-					coordinate={{ latitude: initialRegion.latitude, longitude: initialRegion.longitude }}
-					title="Default marker"
-					description="This is a sample marker"
-				/>
+				{pins.map((pin) => (
+                    <Marker
+                        key={pin.id}
+                        onPress={() => setSelectedPin(pin)}
+                        coordinate={{ latitude: pin.lat, longitude: pin.lng }}
+                        title={pin.name || "Untitled"}
+                    />
+                ))}
 			</MapView>
+            <BusinessModal businessName={selectedPin?.name || ''} visible={selectedPin !== null} onClose={() => setSelectedPin(null)} businessIcon={selectedPin?.iconUrl || ''} />
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#fff",
-	},
-	topBar: {
-		width: "100%",
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-		backgroundColor: "rgba(255,255,255,0.95)",
-		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: "#ddd",
-		zIndex: 2,
-	},
-	title: {
-		fontSize: 18,
-		fontWeight: "600",
-	},
-	subtitle: {
-		fontSize: 12,
-		color: "#666",
-	},
-	map: {
-		flex: 1,
-		zIndex: 1,
-	},
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+  },
+  map: {
+    flex: 1,
+  },
 });

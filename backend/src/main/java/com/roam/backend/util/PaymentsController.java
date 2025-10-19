@@ -24,7 +24,7 @@ public class PaymentsController {
     Dotenv dotenv = Dotenv.load();
 
     Stripe.apiKey = dotenv.get("STRIPE_SECRET");
-    this.successUrl = "https://www.google.com"; // todo - add successful payment page
+    this.successUrl = "mobile://pages/ElapsedTime"; // todo - add successful payment page
     this.cancelUrl  = "https://www.bing.com"; // todo - add canceled payement page
   }
 
