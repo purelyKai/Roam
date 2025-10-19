@@ -1,0 +1,18 @@
+# WHY: Starts your Go agent after network + llama are ready.
+[Unit]
+Description=Network Agent (Go)
+After=network-online.target llama.service nftables.service hostapd.service dnsmasq.service
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/home/pi/Roam/edge/net-agent
+EnvironmentFile=/home/pi/Roam/edge/net-agent/.env
+ExecStart=/home/pi/Roam/edge/net-agent/bin/agent
+User=pi
+# WHY: Enough privileges for nftables/tc without running as root.
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
