@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useState } from 'react';
+import { Checkout } from '@/utils/stripeCheckout';
 
 interface BusinessModalProps {
   businessName: string;
@@ -19,8 +20,8 @@ const BusinessModal = ({ businessName, businessIcon, visible, onClose }: Busines
   ];
 
   const handleCheckout = () => {
-    // TODO: Implement checkout logic
     console.log(`Checking out for ${selectedTime} minutes`);
+    Checkout("price_1SJlk86PfUH9aqsh1rZ8BhBY", selectedTime / 30);
   };
 
   return (
