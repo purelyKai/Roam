@@ -10,18 +10,9 @@ interface BusinessModalProps {
 }
 
 const BusinessModal = ({ businessName, businessIcon, visible, onClose }: BusinessModalProps) => {
-  const [selectedTime, setSelectedTime] = useState(30); // Default 30 minutes
-
-  const timeOptions = [
-    { minutes: 30, price: 0.50 },
-    { minutes: 60, price: 1.00 },
-    { minutes: 90, price: 1.50 },
-    { minutes: 120, price: 2.00 },
-  ];
-
   const handleCheckout = () => {
-    console.log(`Checking out for ${selectedTime} minutes`);
-    Checkout("price_1SJlk86PfUH9aqsh1rZ8BhBY", selectedTime / 30);
+    console.log('Checking out for 30 minutes');
+    Checkout("price_1SJlk86PfUH9aqsh1rZ8BhBY", 1);
   };
 
   return (
@@ -45,42 +36,16 @@ const BusinessModal = ({ businessName, businessIcon, visible, onClose }: Busines
             <Text style={styles.businessName}>{businessName}</Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Select WiFi Duration</Text>
-          
-          <ScrollView style={styles.timeOptionsContainer}>
-            {timeOptions.map((option) => (
-              <TouchableOpacity
-                key={option.minutes}
-                style={[
-                  styles.timeOption,
-                  selectedTime === option.minutes && styles.selectedTimeOption
-                ]}
-                onPress={() => setSelectedTime(option.minutes)}
-              >
-                <Text style={[
-                  styles.timeOptionText,
-                  selectedTime === option.minutes && styles.selectedTimeOptionText
-                ]}>
-                  {option.minutes} minutes
-                </Text>
-                <Text style={[
-                  styles.priceText,
-                  selectedTime === option.minutes && styles.selectedTimeOptionText
-                ]}>
-                  ${option.price.toFixed(2)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity
-            style={styles.checkoutButton}
-            onPress={handleCheckout}
-          >
-            <Text style={styles.checkoutButtonText}>
-              Checkout - ${((selectedTime / 30) * 0.50).toFixed(2)}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.circleButtonContainer}>
+            <TouchableOpacity
+              style={styles.circleButton}
+              onPress={handleCheckout}
+            >
+              <Text style={styles.circleButtonPrice}>$0.50</Text>
+              <Text style={styles.circleButtonText}>30 min</Text>
+              <Text style={styles.circleButtonText}>WiFi</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -118,70 +83,49 @@ const styles = StyleSheet.create({
   },
   businessHeader: {
     alignItems: 'center',
-    marginBottom: 24,
     marginTop: 10,
+    marginBottom: 40,
   },
   businessIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 12,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
   },
   businessName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  timeOptionsContainer: {
-    maxHeight: 280,
-    marginBottom: 16,
-  },
-  timeOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  circleButtonContainer: {
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    marginBottom: 8,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    justifyContent: 'center',
+    marginBottom: 20,
   },
-  selectedTimeOption: {
-    borderColor: '#E20074', // T-Mobile magenta
-    backgroundColor: '#FFF0F7', // Light magenta
-  },
-  timeOptionText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-  },
-  selectedTimeOptionText: {
-    color: '#E20074', // T-Mobile magenta
-  },
-  priceText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  checkoutButton: {
-    backgroundColor: '#E20074', // T-Mobile magenta
-    padding: 16,
-    borderRadius: 12,
+  circleButton: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#E20074',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
-  checkoutButtonText: {
+  circleButtonPrice: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 36,
     fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  circleButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '600',
   },
 });
 
