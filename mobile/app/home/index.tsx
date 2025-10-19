@@ -1,12 +1,13 @@
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TopBar from '../../components/TopBar';
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import * as Location from 'expo-location';
-import useGetPins from "@/hooks/getPins";
+import useGetPins, { Pin } from "@/hooks/getPins";
+import BusinessModal from '@/components/BusinessModal';
 
 export default function Index() {
 	const initialRegion = {
@@ -16,7 +17,8 @@ export default function Index() {
 		longitudeDelta: 0.0121,
 	};
 
-    const [location, setLocation] = useState<Location.LocationObject | null>(null); 
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
+    const [selectedPin, setSelectedPin] = useState<Pin | null>(null); 
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
     const hasActiveConnection = true;
     const { pins } = useGetPins(location ? { lat: location.coords.latitude, lng: location.coords.longitude, radius: 2500 } : null);
@@ -25,7 +27,6 @@ export default function Index() {
         async function getCurrentLocation() {
         
         let { status } = await Location.requestForegroundPermissionsAsync();
-        console.log(status)
         if (status !== 'granted') {
             setErrorMsg('Permission to access location was denied');
             return;
@@ -46,8 +47,6 @@ export default function Index() {
         );
     }
 
-    console.log(pins)
-
 	return (
 		<SafeAreaView style={styles.container}>
       <TopBar hasActiveConnection={hasActiveConnection} showBackButton={false} />
@@ -62,11 +61,13 @@ export default function Index() {
 				{pins.map((pin) => (
                     <Marker
                         key={pin.id}
+                        onPress={() => setSelectedPin(pin)}
                         coordinate={{ latitude: pin.lat, longitude: pin.lng }}
                         title={pin.name || "Untitled"}
                     />
                 ))}
 			</MapView>
+            <BusinessModal businessName={selectedPin?.name || ''} visible={selectedPin !== null} onClose={() => setSelectedPin(null)} businessIcon={selectedPin?.iconUrl || ''} />
 		</SafeAreaView>
 	);
 }
@@ -77,6 +78,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   content: {
+    flex: 1,
+  },
+  map: {
     flex: 1,
   },
 });

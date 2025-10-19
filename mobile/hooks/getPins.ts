@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type Pin = {
+export type Pin = {
     id: string;
     lat: number;
     lng: number;
 
     // display / metadata
     name?: string;
-    iconUrl?: string;
+    iconUrl: string;
     price?: number;
     ssid?: string;
     stripePaymentId?: string;

@@ -84,6 +84,7 @@ export default function ActiveSessionScreen() {
   // Handle URL when app opens from Stripe redirect
   useEffect(() => {
     const handleUrl = async (url: string) => {
+        console.log(url)
       if (url.includes('checkout-success')) {
         const params = Linking.parse(url).queryParams as { minutes?: string };
         if (params.minutes) {

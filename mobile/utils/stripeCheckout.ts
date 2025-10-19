@@ -1,7 +1,7 @@
 import * as WebBrowser from "expo-web-browser";
 import { Platform, Linking } from "react-native";
 
-const API_BASE = Platform.OS === "android"
+const API_BASE = Platform.OS === "android" || Platform.OS === "ios"
     ? "http://10.0.2.2:5835" // Android emulator -> host machine
     : "http://localhost:5835"; 
 
@@ -30,7 +30,7 @@ export async function Checkout(priceId: string, qty = 1): Promise<void> {
   const url = (await res.text()).trim();
 
   try {
-    await WebBrowser.openAuthSessionAsync(url, "https://www.google.com"); // todo - URI to detect browser returning to app
+    await WebBrowser.openAuthSessionAsync(url, "mobile://pages/ElapsedTime"); // todo - URI to detect browser returning to app
   } catch {
     await Linking.openURL(url);
   }
