@@ -2,6 +2,7 @@
 SHELL := /bin/bash
 ROOT := $(shell pwd)
 MODEL ?= qwen2.5-1.5b-instruct-q4_k_m.gguf
+MODEL_URL ?= https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf
 
 .PHONY: llama build-agent run-llama run-agent model bootstrap-pi test
 
@@ -21,13 +22,20 @@ run-agent:           # run agent locally for dev
 	@if [ ! -f "bin/agent" ]; then echo "Run 'make build-agent' first"; exit 1; fi
 	LLAMA_URL=http://127.0.0.1:$${LLAMA_PORT:-8080} ./bin/agent
 
-model:               # hint for pulling models
-	./scripts/get-model.sh models $(MODEL)
+model:               # download model if not present
+	@mkdir -p models
+	@if [ ! -f "models/$(MODEL)" ]; then \
+		echo "Downloading $(MODEL)... (this may take a few minutes)"; \
+		curl -L --progress-bar "$(MODEL_URL)" -o "models/$(MODEL)"; \
+		echo "✓ Model downloaded to models/$(MODEL)"; \
+	else \
+		echo "✓ Model already exists: models/$(MODEL)"; \
+	fi
 
 bootstrap-pi:        # one-shot Pi setup (Pi only!)
 	./scripts/bootstrap-pi.sh
 
-test: llama build-agent  # test the full flow locally
+test: llama build-agent model  # test the full flow locally
 	@echo "==> Starting llama server..."
 	@bin/llama-server -m models/$(MODEL) -c 2048 -t 2 --host 127.0.0.1 --port 8080 &
 	@sleep 3
