@@ -12,3 +12,7 @@
 /edge/net-agent/**/*.log
 # model weights (keep huge files out of git)
 /edge/net-agent/models/*.gguf
+
+# macOS system files
+.DS_Store
+**/.DS_Store
