@@ -13,5 +13,14 @@ export LLAMA_NATIVE=1                 # optimize for host CPU (Pi vs x86)
 cmake -S "$LLAMA" -B "$OUT" -DGGML_OPENMP=ON   # WHY: enable multithreading
 cmake --build "$OUT" -j                         # WHY: parallel build
 
-cp "$OUT/bin/server" "$BIN/llama-server"       # WHY: keep binaries under project
+# WHY: newer llama.cpp uses 'llama-server' not 'server'
+if [ -f "$OUT/bin/llama-server" ]; then
+  cp "$OUT/bin/llama-server" "$BIN/llama-server"     # WHY: keep binaries under project
+elif [ -f "$OUT/bin/server" ]; then
+  cp "$OUT/bin/server" "$BIN/llama-server"           # WHY: keep binaries under project
+else
+  echo "Error: Could not find server binary in $OUT/bin/"
+  exit 1
+fi
+
 echo "Built -> $BIN/llama-server"
