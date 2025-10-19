@@ -1,0 +1,14 @@
+# edge/net-agent build + runtime artifacts. Compiled go agent + copied llama server live here
+/edge/net-agent/bin/
+
+# CMake/obj files go here
+/edge/net-agent/build/
+
+# big gguf files live here
+/edge/net-agent/models/
+/edge/net-agent/.env
+
+# DOnt commit log files
+/edge/net-agent/**/*.log
+# model weights (keep huge files out of git)
+/edge/net-agent/models/*.gguf
