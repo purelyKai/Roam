@@ -1,8 +1,6 @@
 import { useRouter } from "expo-router";
-import { Button, Text, View } from "react-native";
-import { Text, View, Pressable} from "react-native";
+import { Button, Text, View, Pressable } from "react-native";
 import { StripeProvider } from '@stripe/stripe-react-native';
-import { Checkout } from '../utils/stripeCheckout';
 
 const STRIPE_PUBLIC = process.env.STRIPE_PUBLIC as string
 
