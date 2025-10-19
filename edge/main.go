@@ -2,32 +2,40 @@ package main
 
 import (
     "log"
-    "net/http"
+    "os"
 )
 
 func main() {
-    log.Println("Roam Edge Service Starting...")
+    log.Println("🚀 Roam Edge Service Starting...")
     
-    // Load configuration
-    config := LoadConfig()
+    // Get config from environment variables
+    backendURL := getEnv("BACKEND_URL", "http://localhost:5835")
+    piDeviceID := getEnv("PI_DEVICE_ID", "pi_unknown")
     
-    // Initialize services
-    auth := NewAuthService(config.BackendURL)
-    ipt := NewIPTablesManager()
+    log.Printf("Backend URL: %s", backendURL)
+    log.Printf("Device ID: %s", piDeviceID)
     
-    // Setup HTTP handlers
-    http.HandleFunc("/", handleCaptivePortal)
-    http.HandleFunc("/connect", func(w http.ResponseWriter, r *http.Request) {
-        handleConnect(w, r, auth, ipt)
-    })
-    http.HandleFunc("/status", handleStatus)
+    dm := &DeviceManager{
+        devices:    make(map[string]*DeviceSession),
+        backendURL: backendURL,
+        piDeviceID: piDeviceID,
+    }
+    
+    // Start monitoring for new connections
+    go dm.monitorNewDevices()
+    
+    // Start cleanup of expired sessions
+    go dm.cleanupExpiredDevices()
+    
+    log.Println("✅ Service running - monitoring for new devices...")
+    
+    // Keep running
+    select {}
+}
 
-    // Start metrics reporter (sends to backend every 30s)
-    go startMetricsReporter(config.BackendURL, config.PiDeviceID)
-    
-    // Start session cleanup (checks expired sessions every minute)
-    go startSessionCleanup(ipt)
-    
-    log.Println("Captive portal running on :80")
-    log.Fatal(http.ListenAndServe(":80", nil))
+func getEnv(key, defaultVal string) string {
+    if val := os.Getenv(key); val != "" {
+        return val
+    }
+    return defaultVal
 }
