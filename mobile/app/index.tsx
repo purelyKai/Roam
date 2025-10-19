@@ -19,10 +19,6 @@ export default function Index() {
         }}
       >
         <Text>Edit app/index.tsx to edit this screen.</Text>
-
-        <Pressable onPress={() => Checkout("price_1SJlk86PfUH9aqsh1rZ8BhBY", 1)}>
-          <Text>BUTTON</Text>
-        </Pressable>
       </View>
     </StripeProvider>
   );
