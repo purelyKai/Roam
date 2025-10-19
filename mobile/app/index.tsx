@@ -1,3 +1,5 @@
+import { useRouter } from "expo-router";
+import { Button, Text, View } from "react-native";
 import { Text, View, Pressable} from "react-native";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { Checkout } from '../utils/stripeCheckout';
@@ -5,6 +7,9 @@ import { Checkout } from '../utils/stripeCheckout';
 const STRIPE_PUBLIC = process.env.STRIPE_PUBLIC as string
 
 export default function Index() {
+
+  const router = useRouter();
+
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLIC}
@@ -19,6 +24,7 @@ export default function Index() {
         }}
       >
         <Text>Edit app/index.tsx to edit this screen.</Text>
+        <Button title="Go to About" onPress={() => router.navigate('/home')} />
       </View>
     </StripeProvider>
   );

@@ -4,21 +4,26 @@
     "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/white.png",
-    "scheme": "roam",
+    "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mobile.mobile",
+      "config": {
+        "googleMapsApiKey": "AIzaSyBQ7ygAw0dp2fiF7abThmbRKlsrQbHBbQc"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow Roam to use your location",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Roam to use your location",
+        "NSLocationAlwaysUsageDescription":  "Allow Roam to use your location",
+        "UIBackgroundModes": [
+          "location"
+        ]
+      }
     },
     "android": {
       "package": "com.mobile.mobile",
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/white.png",
-        "backgroundImage": "./assets/images/white.png",
-        "monochromeImage": "./assets/images/white.png"
-      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -29,15 +34,9 @@
     "plugins": [
       "expo-router",
       [
-        "expo-splash-screen",
+        "expo-location",
         {
-          "image": "./assets/images/white.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "locationAlwaysAndWhenInUsePermission": "Allow Roam to use your location."
         }
       ]
     ],
