@@ -1,11 +1,12 @@
 package main
 
 import (
-    "bytes"
-    "encoding/json"
     "log"
-    "net/http"
-    "time"
+	// REAL IMPLEMENTATION (uncomment when backend is ready):
+    // "bytes"
+    // "encoding/json"
+    // "net/http"
+    // "time"
 )
 
 func (dm *DeviceManager) checkBackendAuthorization(mac string) (bool, int) {
