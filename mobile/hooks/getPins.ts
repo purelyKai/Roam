@@ -7,6 +7,7 @@ export type Pin = {
 
     // display / metadata
     name?: string;
+    password: string;
     iconUrl: string;
     price?: number;
     ssid?: string;

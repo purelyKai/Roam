@@ -1,8 +1,8 @@
 import * as WebBrowser from "expo-web-browser";
 import { Platform, Linking } from "react-native";
 
-const API_BASE = Platform.OS === "android" || Platform.OS === "ios"
-    ? "http://10.0.2.2:5835" // Android emulator -> host machine
+const API_BASE = Platform.OS === "android" ?
+    "http://10.0.2.2:5835" // Android emulator -> host machine
     : "http://localhost:5835"; 
 
 export async function Checkout(priceId: string, qty = 1): Promise<void> {
