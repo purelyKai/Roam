@@ -25,7 +25,12 @@
     "android": {
       "package": "com.mobile.mobile",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBQ7ygAw0dp2fiF7abThmbRKlsrQbHBbQc"
+        }
+      }
     },
     "web": {
       "output": "static",
