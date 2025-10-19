@@ -9,7 +9,18 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mobile.mobile"
+      "bundleIdentifier": "com.mobile.mobile",
+      "config": {
+        "googleMapsApiKey": "AIzaSyBQ7ygAw0dp2fiF7abThmbRKlsrQbHBbQc"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow Roam to use your location",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Roam to use your location",
+        "NSLocationAlwaysUsageDescription":  "Allow Roam to use your location",
+        "UIBackgroundModes": [
+          "location"
+        ]
+      }
     },
     "android": {
       "package": "com.mobile.mobile",
@@ -22,6 +33,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Roam to use your location."
+        }
+      ],
       [
         "expo-location",
         {
