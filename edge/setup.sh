@@ -221,7 +221,8 @@ status_code=$(echo "$response" | tail -n 1)
 if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
     echo "Raspberry Pi successfullly registered."
 else
-    echo "Failed to register Raspberry Pi."
+    echo "Failed to register Raspberry Pi. /api/register-pi returned status code: $status_code"
+    ./reset.sh
     exit 1
 fi
 
