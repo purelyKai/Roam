@@ -18,6 +18,22 @@ go.work
 .env
 .env.local
 
+# net-agent build + runtime artifacts. Compiled go agent + copied llama server live here
+net-agent/bin/
+
+# CMake/obj files go here
+net-agent/build/
+
+# big gguf files live here
+net-agent/models/
+net-agent/.env
+
+# Don't commit log files
+net-agent/**/*.log
+
+# model weights (keep huge files out of git)
+net-agent/models/*.gguf
+
 # OS files
 .DS_Store
 Thumbs.db
