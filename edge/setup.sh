@@ -13,6 +13,10 @@ PASSWORD="RoamPass1234"
 BACKEND_URL="http://localhost:5835"
 PI_DEVICE_ID="pi_$(hostname)"
 
+# jersey mikes
+LATITUDE=44.568327
+LONGITUDE=-123.276141
+
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -209,6 +213,20 @@ if [ "$(cat /proc/sys/net/ipv4/ip_forward)" = "1" ]; then
 else
     print_warning "IP forwarding is not enabled"
 fi
+
+# Register Raspberry Pi in database
+response=$(curl -s -w "\n%{http_code}" -d "name=$PI_DEVICE_ID&ssid=$SSID&lat=$LATITUDE&lng=$LONGITUDE" "$BACKEND_URL/api/register-pi")
+response_body=$(echo "$response" | sed '$d')
+status_code=$(echo "$response" | tail -n 1)
+if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
+    echo "Raspberry Pi successfullly registered."
+else
+    echo "Failed to register Raspberry Pi."
+    exit 1
+fi
+
+
+
 
 echo ""
 echo "=========================================="
