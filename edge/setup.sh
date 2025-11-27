@@ -20,20 +20,41 @@ LONGITUDE=-123.276141
 # Colors for output
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+RED='\033[0;31m'
+NC='\033[0m'
 
-print_status() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
+print_status() { echo -e "${GREEN}✓${NC} $1"; }
+print_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
+print_error() { echo -e "${RED}✗${NC} $1"; }
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then 
     echo "Please run as root (use sudo)"
     exit 1
+fi
+
+# Step 0: Fix NetworkManager so wlan0 becomes available
+echo ""
+echo "Step 0: Verifying NetworkManager configuration..."
+
+NM_CONF="/etc/NetworkManager/NetworkManager.conf"
+NEEDED_CONTENT="[main]
+plugins=ifupdown, keyfile
+
+[ifupdown]
+managed=true
+
+[device]
+wifi.backend=wpa_supplicant
+"
+
+if ! grep -q "managed=true" "$NM_CONF"; then
+    echo "$NEEDED_CONTENT" > "$NM_CONF"
+    print_status "NetworkManager config updated (managed=true)"
+    systemctl restart NetworkManager
+    sleep 2
+else
+    print_status "NetworkManager config already correct"
 fi
 
 # Step 1: Update system
@@ -83,7 +104,7 @@ nmcli device disconnect wlan0 2>/dev/null || true
 
 # Restart NetworkManager for clean state
 systemctl restart NetworkManager
-sleep 3
+sleep 2
 
 # Create new hotspot
 nmcli device wifi hotspot ifname wlan0 ssid "$SSID" password "$PASSWORD"
@@ -129,6 +150,7 @@ print_status "Firewall configured"
 # Step 7: Build Go application
 echo ""
 echo "Step 7: Building Roam Edge service..."
+
 cd /home/admin/Roam/edge
 
 # Initialize Go module if needed
@@ -225,9 +247,6 @@ else
     ./reset.sh
     exit 1
 fi
-
-
-
 
 echo ""
 echo "=========================================="
