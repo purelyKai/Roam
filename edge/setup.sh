@@ -98,9 +98,9 @@ sleep 3
 # Create new hotspot
 nmcli device wifi hotspot ifname wlan0 ssid "$SSID" password "$PASSWORD"
 
-# Configure band and channel
-nmcli connection modify Hotspot wifi.band bg
-nmcli connection modify Hotspot wifi.channel 11
+# Configure band and channel (5GHz [802.11ac], channel 149)
+nmcli connection modify Hotspot wifi.band a
+nmcli connection modify Hotspot wifi.channel 149
 
 # Enable auto-connect on boot
 nmcli connection modify Hotspot connection.autoconnect yes
