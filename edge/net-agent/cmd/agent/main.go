@@ -17,15 +17,15 @@ type ChatMessage struct {
 }
 
 type ChatRequest struct {
-	Messages         []ChatMessage `json:"messages"`
-	MaxTokens        int           `json:"max_tokens"`
-	Temperature      float64       `json:"temperature"`
-	Stream           bool          `json:"stream"`
-	TopK             int           `json:"top_k,omitempty"`
-	TopP             float64       `json:"top_p,omitempty"`
-	RepeatPenalty    float64       `json:"repeat_penalty,omitempty"`
-	Stop             []string      `json:"stop,omitempty"`
-	AddGenPrompt     bool          `json:"add_generation_prompt,omitempty"`
+	Messages      []ChatMessage `json:"messages"`
+	MaxTokens     int           `json:"max_tokens"`
+	Temperature   float64       `json:"temperature"`
+	Stream        bool          `json:"stream"`
+	TopK          int           `json:"top_k,omitempty"`
+	TopP          float64       `json:"top_p,omitempty"`
+	RepeatPenalty float64       `json:"repeat_penalty,omitempty"`
+	Stop          []string      `json:"stop,omitempty"`
+	AddGenPrompt  bool          `json:"add_generation_prompt,omitempty"`
 }
 
 type ChatResponse struct {

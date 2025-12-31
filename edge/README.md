@@ -11,12 +11,14 @@ Turns a Raspberry Pi into a monetized WiFi hotspot that validates sessions with 
 5. Automatically disconnects when session expires
 
 ## Quick Start
+
 ```bash
 cd /home/admin/Roam/edge
 sudo ./setup.sh
 ```
 
 The script will:
+
 - Install all dependencies
 - Create WiFi hotspot
 - Configure firewall
@@ -25,23 +27,27 @@ The script will:
 ## Configuration
 
 After setup, edit the backend URL and device ID:
+
 ```bash
 sudo nano /etc/systemd/system/edge.service
 ```
 
 Change these lines:
+
 ```
 Environment="BACKEND_URL=http://your-backend:5853"
 Environment="PI_DEVICE_ID=pi_your_location"
 ```
 
 Then reload:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl restart edge
 ```
 
 ## Change WiFi Settings
+
 ```bash
 sudo nmcli connection delete Hotspot
 sudo nmcli device wifi hotspot ssid "NewName" password "NewPassword"
@@ -53,6 +59,7 @@ sudo nmcli connection modify Hotspot connection.autoconnect yes
 **POST /api/pi/authorize-mac**
 
 Request:
+
 ```json
 {
   "device_mac": "aa:bb:cc:dd:ee:ff",
@@ -61,6 +68,7 @@ Request:
 ```
 
 Response (if paid):
+
 ```json
 {
   "authorized": true,
@@ -69,6 +77,7 @@ Response (if paid):
 ```
 
 Response (if not paid):
+
 ```json
 {
   "authorized": false,
@@ -77,6 +86,7 @@ Response (if not paid):
 ```
 
 ## Useful Commands
+
 ```bash
 # View live logs
 sudo journalctl -u edge -f
@@ -95,6 +105,7 @@ sudo iptables -L FORWARD -v -n
 ```
 
 ## How It Works
+
 ```
 User pays in mobile app
   ↓
@@ -116,11 +127,13 @@ After duration → Pi removes access
 ## Troubleshooting
 
 **Service won't start:**
+
 ```bash
 sudo journalctl -u edge -n 50
 ```
 
 **No internet on devices:**
+
 ```bash
 # Check IP forwarding
 cat /proc/sys/net/ipv4/ip_forward  # Must be 1
@@ -130,6 +143,7 @@ sudo iptables -t nat -L -v -n
 ```
 
 **WiFi not visible:**
+
 ```bash
 nmcli connection show Hotspot
 iwconfig wlan0  # Should show Mode:Master
@@ -138,6 +152,7 @@ iwconfig wlan0  # Should show Mode:Master
 ## Development
 
 Enable real backend (edit `backend.go`):
+
 ```go
 // Comment out the mock return
 // return true, 30
@@ -146,6 +161,7 @@ Enable real backend (edit `backend.go`):
 ```
 
 Then rebuild:
+
 ```bash
 cd /home/admin/Roam/edge
 go build -o edge
@@ -153,6 +169,7 @@ sudo systemctl restart edge
 ```
 
 ## File Structure
+
 ```
 edge/
 ├── main.go              # Entry point
