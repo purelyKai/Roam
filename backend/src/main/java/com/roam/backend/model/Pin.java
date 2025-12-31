@@ -33,6 +33,9 @@ public class Pin {
     private String ssid;
 
     @Column(nullable = true)
+    private String password;
+
+    @Column(nullable = false)
     private Double price;
 
     @Column(nullable = true)

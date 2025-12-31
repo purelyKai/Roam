@@ -240,7 +240,7 @@ fi
 echo ""
 echo "Step 11: Registering device with backend..."
 
-response=$(curl -s -w "\n%{http_code}" -d "device_id=$DEVICE_UUID&name=$NAME&ssid=$SSID&lat=$LATITUDE&lng=$LONGITUDE&icon_url=$ICON_URL" "$BACKEND_URL/api/register-pi")
+response=$(curl -s -w "\n%{http_code}" -d "device_id=$DEVICE_UUID&name=$NAME&ssid=$SSID&password=$PASSWORD&lat=$LATITUDE&lng=$LONGITUDE&icon_url=$ICON_URL" "$BACKEND_URL/api/register-pi")
 response_body=$(echo "$response" | sed '$d')
 status_code=$(echo "$response" | tail -n 1)
 

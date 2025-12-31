@@ -50,6 +50,7 @@ public class PinController {
             @RequestParam("device_id") String deviceId,
             @RequestParam("name") String name,
             @RequestParam("ssid") String ssid,
+            @RequestParam("password") String password,
             @RequestParam("lat") Double latitude,
             @RequestParam("lng") Double longitude,
             @RequestParam(value = "icon_url", required = false) String iconUrl
@@ -63,6 +64,7 @@ public class PinController {
                             .deviceId(deviceId)
                             .name(name)
                             .ssid(ssid)
+                            .password(password)
                             .lat(latitude)
                             .lng(longitude)
                             .iconUrl(iconUrl)
@@ -71,6 +73,7 @@ public class PinController {
             // Update existing device information
             pin.setName(name);
             pin.setSsid(ssid);
+            pin.setPassword(password);
             pin.setLat(latitude);
             pin.setLng(longitude);
             
