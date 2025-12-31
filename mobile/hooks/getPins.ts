@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type Pin = {
-    id: string;
-    lat: number;
-    lng: number;
+  id: string;
+  lat: number;
+  lng: number;
 
-    // display / metadata
-    name?: string;
-    password: string;
-    iconUrl: string;
-    price?: number;
-    ssid?: string;
-    stripePaymentId?: string;
-    allowedListId?: string | null;
+  // display / metadata
+  name?: string;
+  password: string;
+  iconUrl: string;
+  price?: number;
+  ssid?: string;
+  stripePaymentId?: string;
+  allowedListId?: string | null;
 };
 
 type UseGetPinsOptions = {
@@ -21,17 +21,32 @@ type UseGetPinsOptions = {
   defaultRadius?: number;
 };
 
-const DEFAULT_BACKEND = 'http://127.0.0.1:5835/';
+const DEFAULT_BACKEND = "http://10.0.0.168:5835/";
 
 /**
  * Resolve BACKEND_URL from environment or global fallback.
- * In Expo, you may provide it via process.env or a global variable.
+ * In Expo, use EXPO_PUBLIC_ prefixed variables.
  */
 function getBackendUrl() {
-  // prefer explicit env var
+  // Expo public env var (accessible in client)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const env = (process && (process as any).env && (process as any).env.BACKEND_URL) || (global as any).BACKEND_URL;
-  if (env && typeof env === 'string' && env.trim().length > 0) return env.replace(/\/+$/, '');
+  const expoPublic = (process as any).env?.EXPO_PUBLIC_BACKEND_URL;
+  if (
+    expoPublic &&
+    typeof expoPublic === "string" &&
+    expoPublic.trim().length > 0
+  ) {
+    return expoPublic.replace(/\/+$/, "");
+  }
+
+  // Fallback to legacy BACKEND_URL
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const env =
+    (process && (process as any).env && (process as any).env.BACKEND_URL) ||
+    (global as any).BACKEND_URL;
+  if (env && typeof env === "string" && env.trim().length > 0)
+    return env.replace(/\/+$/, "");
+
   return DEFAULT_BACKEND;
 }
 
@@ -55,10 +70,10 @@ export default function useGetPins(
 
   const buildUrl = useCallback(
     (lat: number, lng: number, radius: number) => {
-      const base = backend.replace(/\/+$/, '');
-      const qs = `lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}&radius=${encodeURIComponent(
-        radius
-      )}`;
+      const base = backend.replace(/\/+$/, "");
+      const qs = `lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(
+        lng
+      )}&radius=${encodeURIComponent(radius)}`;
       return `${base}/pins?${qs}`;
     },
     [backend]
@@ -79,17 +94,24 @@ export default function useGetPins(
       const url = buildUrl(lat, lng, radius);
 
       try {
-        const res = await fetch(url, { signal: controller.signal, ...(fetchOptions || {}) });
-        if (!res.ok) throw new Error(`Failed to fetch pins: ${res.status} ${res.statusText}`);
+        const res = await fetch(url, {
+          signal: controller.signal,
+          ...(fetchOptions || {}),
+        });
+        if (!res.ok)
+          throw new Error(
+            `Failed to fetch pins: ${res.status} ${res.statusText}`
+          );
         const data = await res.json();
 
         // expect an array of pins from backend; fall back to empty
         if (Array.isArray(data)) setPins(data as Pin[]);
-        else if (data && Array.isArray((data as any).pins)) setPins((data as any).pins as Pin[]);
+        else if (data && Array.isArray((data as any).pins))
+          setPins((data as any).pins as Pin[]);
         else setPins([]);
       } catch (err: unknown) {
-        console.error('Error fetching pins:', err);
-        if ((err as any)?.name === 'AbortError') return; // aborted
+        console.error("Error fetching pins:", err);
+        if ((err as any)?.name === "AbortError") return; // aborted
         setError(err as Error);
         setPins([]);
       } finally {
