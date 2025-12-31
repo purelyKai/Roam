@@ -12,39 +12,34 @@ Turns a Raspberry Pi into a monetized WiFi hotspot that validates sessions with 
 
 ## Quick Start
 
+### 1. Configure Environment
+
+Copy the example configuration from `.env.example` into `.env`.
+
+Edit `.env` with your settings.
+
+### 2. Run Setup
+
 ```bash
-cd /home/admin/Roam/edge
 sudo ./setup.sh
 ```
 
 The script will:
 
+- Load configuration from `.env`
 - Install all dependencies
-- Create WiFi hotspot
+- Create WiFi hotspot with your SSID/password
 - Configure firewall
 - Build and start the service
 
 ## Configuration
 
-After setup, edit the backend URL and device ID:
+To change settings later:
 
-```bash
-sudo nano /etc/systemd/system/edge.service
-```
+1. Edit `.env` file with your new settings
+2. Re-run the setup script: `sudo ./setup.sh`
 
-Change these lines:
-
-```
-Environment="BACKEND_URL=http://your-backend:5853"
-Environment="PI_DEVICE_ID=pi_your_location"
-```
-
-Then reload:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart edge
-```
+All configurations are now managed through the `.env` file.
 
 ## Change WiFi Settings
 

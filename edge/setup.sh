@@ -7,11 +7,25 @@ set -e  # Exit on error
 
 echo "🚀 Starting Roam Edge Setup..."
 
-# Configuration variables
-SSID="Roam_CoffeeShop"
-PASSWORD="RoamPass1234"
-BACKEND_URL="http://localhost:5835"
-PI_DEVICE_ID="pi_$(hostname)"
+# Load configuration from .env file
+if [ ! -f ".env" ]; then
+    echo "❌ Error: .env file not found!"
+    echo "Please copy .env.example to .env and configure it."
+    exit 1
+fi
+
+# Source .env file
+set -a  # automatically export all variables
+source .env
+set +a
+
+# Use hostname for PI_DEVICE_ID if it contains $(hostname)
+if [[ "$PI_DEVICE_ID" == *'$(hostname)'* ]]; then
+    PI_DEVICE_ID="pi_$(hostname)"
+fi
+
+# Set default API_PORT if not set
+API_PORT="${API_PORT:-7241}"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -227,8 +241,7 @@ echo "  - Check status: sudo systemctl status edge"
 echo "  - View connected devices: iw dev wlan0 station dump"
 echo "  - View iptables: sudo iptables -L FORWARD -v -n"
 echo ""
-echo "To change backend URL later:"
-echo "  1. Edit /etc/systemd/system/edge.service"
-echo "  2. Run: sudo systemctl daemon-reload"
-echo "  3. Run: sudo systemctl restart edge"
+echo "To change configuration later:"
+echo "  1. Edit .env file with your settings"
+echo "  2. Re-run this setup script: sudo ./setup.sh"
 echo ""
