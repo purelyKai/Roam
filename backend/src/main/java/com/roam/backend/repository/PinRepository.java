@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PinRepository extends JpaRepository<Pin, Long> {
 
@@ -19,4 +20,8 @@ public interface PinRepository extends JpaRepository<Pin, Long> {
     List<Pin> findAllWithinRadius(@Param("lat") double lat,
                                   @Param("lng") double lng,
                                   @Param("radius") double radius);
+
+    Optional<Pin> findByDeviceId(String deviceId);
+
+    boolean existsByDeviceId(String deviceId);
 }

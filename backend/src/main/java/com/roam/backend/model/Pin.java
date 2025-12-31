@@ -2,6 +2,7 @@ package com.roam.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.Instant;
 
 @Entity
 @Table(name = "pins")
@@ -16,14 +17,17 @@ public class Pin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
+    private String deviceId;
+
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false)
     private Double lat;
 
     @Column(nullable = false)
     private Double lng;
-
-    @Column(nullable = false)
-    private String name;
 
     @Column(nullable = false)
     private String ssid;
@@ -39,4 +43,21 @@ public class Pin {
 
     @Column(nullable = true)
     private Long allowedListId; // FK for allowlist (can be null for now)
+
+    @Column(name = "created_at")
+    private Instant createdAt;
+
+    @Column(name = "updated_at")
+    private Instant updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Instant.now();
+    }
 }

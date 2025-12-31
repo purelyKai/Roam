@@ -19,10 +19,20 @@ set -a  # automatically export all variables
 source .env
 set +a
 
-# Use hostname for PI_DEVICE_ID if it contains $(hostname)
-if [[ "$PI_DEVICE_ID" == *'$(hostname)'* ]]; then
-    PI_DEVICE_ID="pi_$(hostname)"
+# Generate or load persistent device UUID
+DEVICE_ID_FILE="/etc/roam-device-id"
+if [ -f "$DEVICE_ID_FILE" ]; then
+    DEVICE_UUID=$(cat "$DEVICE_ID_FILE")
+    echo "📝 Using existing device ID: $DEVICE_UUID"
+else
+    DEVICE_UUID=$(cat /proc/sys/kernel/random/uuid)
+    echo "$DEVICE_UUID" > "$DEVICE_ID_FILE"
+    chmod 644 "$DEVICE_ID_FILE"
+    echo "🆕 Generated new device ID: $DEVICE_UUID"
 fi
+
+# Use hostname for human-readable name
+PI_DEVICE_NAME="pi_$(hostname)"
 
 # Set default API_PORT if not set
 API_PORT="${API_PORT:-7241}"
@@ -179,7 +189,7 @@ Type=simple
 User=root
 WorkingDirectory=/home/admin/Roam/edge
 Environment="BACKEND_URL=$BACKEND_URL"
-Environment="PI_DEVICE_ID=$PI_DEVICE_ID"
+Environment="PI_DEVICE_ID=$DEVICE_UUID"
 Environment="API_PORT=$API_PORT"
 ExecStart=/home/admin/Roam/edge/edge
 Restart=always
@@ -226,6 +236,33 @@ else
     print_warning "IP forwarding is not enabled"
 fi
 
+# Step 11: Register device with backend
+echo ""
+echo "Step 11: Registering device with backend..."
+
+response=$(curl -s -w "\n%{http_code}" -d "device_id=$DEVICE_UUID&name=$NAME&ssid=$SSID&lat=$LATITUDE&lng=$LONGITUDE&icon_url=$ICON_URL" "$BACKEND_URL/api/register-pi")
+response_body=$(echo "$response" | sed '$d')
+status_code=$(echo "$response" | tail -n 1)
+
+if [[ "$status_code" -ge 200 && "$status_code" -lt 300 ]]; then
+    print_status "Device successfully registered with backend"
+else
+    echo ""
+    echo "❌ Failed to register device with backend"
+    echo "Status code: $status_code"
+    echo "Response: $response_body"
+    echo ""
+    echo "Device cannot operate without backend registration."
+    echo "Running reset script to clean up..."
+    
+    # Run reset script to clean up
+    if [ -f "./reset.sh" ]; then
+        ./reset.sh
+    fi
+    
+    exit 1
+fi
+
 echo ""
 echo "=========================================="
 echo "✅ Roam Edge Setup Complete!"
@@ -234,7 +271,7 @@ echo ""
 echo "WiFi Network: $SSID"
 echo "Password: $PASSWORD"
 echo "Backend URL: $BACKEND_URL"
-echo "Device ID: $PI_DEVICE_ID"
+echo "Device UUID: $DEVICE_UUID"
 echo ""
 echo "Useful commands:"
 echo "  - View logs: sudo journalctl -u edge -f"
