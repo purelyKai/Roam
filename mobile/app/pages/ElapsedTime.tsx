@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as Progress from "react-native-progress";
-import TopBar from '@/components/TopBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Checkout } from '@/utils/stripeCheckout';
-import * as Linking from 'expo-linking';
+import TopBar from "@/components/TopBar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Checkout } from "@/utils/stripeCheckout";
+import * as Linking from "expo-linking";
 
-const STORAGE_KEY = '@roam_remaining_time';
+const STORAGE_KEY = "@roam_remaining_time";
 
 export default function ActiveSessionScreen() {
   const [remainingTime, setRemainingTime] = useState(0);
@@ -23,7 +30,7 @@ export default function ActiveSessionScreen() {
           setRemainingTime(parseInt(savedTime));
         }
       } catch (error) {
-        console.error('Error loading saved time:', error);
+        console.error("Error loading saved time:", error);
       }
     };
     loadSavedTime();
@@ -33,8 +40,8 @@ export default function ActiveSessionScreen() {
       setRemainingTime((prev) => {
         const newTime = prev > 0 ? prev - 1 : 0;
         // Save the new time to storage
-        AsyncStorage.setItem(STORAGE_KEY, String(newTime)).catch((error: Error) => 
-          console.error('Error saving time:', error)
+        AsyncStorage.setItem(STORAGE_KEY, String(newTime)).catch(
+          (error: Error) => console.error("Error saving time:", error)
         );
         return newTime;
       });
@@ -61,21 +68,24 @@ export default function ActiveSessionScreen() {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, String(newTime));
     } catch (error) {
-      console.error('Error saving new time:', error);
+      console.error("Error saving new time:", error);
     }
   };
 
-  const handlePurchase = async (option: { minutes: number; priceId: string }) => {
+  const handlePurchase = async (option: {
+    minutes: number;
+    priceId: string;
+  }) => {
     if (isProcessingPayment) return;
-    
+
     try {
       setIsProcessingPayment(true);
       await Checkout(option.priceId);
       // Time will be added when the webhook confirms the payment
       // and the app receives the success URL
     } catch (error) {
-      console.error('Payment error:', error);
-      Alert.alert('Error', 'Failed to process payment. Please try again.');
+      console.error("Payment error:", error);
+      Alert.alert("Error", "Failed to process payment. Please try again.");
     } finally {
       setIsProcessingPayment(false);
     }
@@ -84,8 +94,8 @@ export default function ActiveSessionScreen() {
   // Handle URL when app opens from Stripe redirect
   useEffect(() => {
     const handleUrl = async (url: string) => {
-        console.log(url)
-      if (url.includes('checkout-success')) {
+      console.log(url);
+      if (url.includes("checkout-success")) {
         const params = Linking.parse(url).queryParams as { minutes?: string };
         if (params.minutes) {
           const minutes = parseInt(params.minutes, 10);
@@ -97,13 +107,13 @@ export default function ActiveSessionScreen() {
     };
 
     // Listen for when the app opens from a URL
-    Linking.addEventListener('url', ({ url }) => handleUrl(url));
+    Linking.addEventListener("url", ({ url }) => handleUrl(url));
   }, []);
 
   return (
     <View style={styles.container}>
       <TopBar hasActiveConnection={true} showBackButton={true} />
-      <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.contentContainer}>
             {/* Header */}
@@ -123,7 +133,8 @@ export default function ActiveSessionScreen() {
               />
               <View style={styles.timerTextContainer}>
                 <Text style={styles.timeText}>
-                  {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+                  {String(minutes).padStart(2, "0")}:
+                  {String(seconds).padStart(2, "0")}
                 </Text>
                 <Text style={styles.subText}>remaining</Text>
               </View>
@@ -134,9 +145,12 @@ export default function ActiveSessionScreen() {
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Keep your connection going</Text>
               {purchaseOptions.map((option) => (
-                <TouchableOpacity 
-                  key={option.label} 
-                  style={[styles.optionButton, isProcessingPayment && styles.disabledButton]}
+                <TouchableOpacity
+                  key={option.label}
+                  style={[
+                    styles.optionButton,
+                    isProcessingPayment && styles.disabledButton,
+                  ]}
                   onPress={() => handlePurchase(option)}
                   disabled={isProcessingPayment}
                 >

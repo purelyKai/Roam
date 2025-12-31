@@ -16,10 +16,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Allow Roam to use your location",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow Roam to use your location",
-        "NSLocationAlwaysUsageDescription":  "Allow Roam to use your location",
-        "UIBackgroundModes": [
-          "location"
-        ]
+        "NSLocationAlwaysUsageDescription": "Allow Roam to use your location",
+        "UIBackgroundModes": ["location"]
       }
     },
     "android": {
