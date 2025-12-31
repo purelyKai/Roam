@@ -2,6 +2,8 @@
 
 A real-time monitoring dashboard for the Roam Edge service running on Raspberry Pi. This web application displays connected devices and streams live system logs.
 
+This dashboard is hosted at [roam-eta.vercel.app](https://roam-eta.vercel.app/) and will display the logs only for the edge device in which the user of the dashboard shares the same network.
+
 ## Features
 
 - 📱 **Device Monitoring**: View all connected devices with their status, MAC addresses, connection time, and remaining session time
@@ -31,22 +33,13 @@ Create a `.env` file from the example:
 cp .env.example .env
 ```
 
-Edit `.env` and set your Raspberry Pi's API URL:
-
-```env
-# For local development (same network as Pi)
-VITE_API_URL=http://192.168.1.100:8080
-
-# Replace 192.168.1.100 with your Pi's IP address
-```
-
 ### 3. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-The dashboard will be available at `http://localhost:5173`
+The dashboard will be available at `http://your_pi_ip:5173`
 
 ### 4. Build for Production
 
@@ -61,18 +54,20 @@ The built files will be in the `dist/` directory.
 ### Option 1: Vercel CLI
 
 1. Install Vercel CLI:
+
 ```bash
 npm install -g vercel
 ```
 
 2. Deploy:
+
 ```bash
 vercel
 ```
 
 3. Set environment variable in Vercel dashboard:
    - Go to Project Settings → Environment Variables
-   - Add `VITE_API_URL` with your Pi's public URL
+   - Add `VITE_API_URL` with your Pi's URL
 
 ### Option 2: GitHub Integration
 
@@ -103,10 +98,12 @@ API_PORT=8080
 ### 3. Network Access
 
 #### For Local Network Access:
+
 - Find your Pi's local IP: `hostname -I`
 - Use this IP in your dashboard's `.env`: `VITE_API_URL=http://192.168.1.100:8080`
 
 #### For Public Internet Access (Vercel deployment):
+
 You need to expose your Pi to the internet. Options:
 
 1. **Port Forwarding**: Configure your router to forward port 8080 to your Pi
