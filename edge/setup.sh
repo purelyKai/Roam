@@ -98,15 +98,19 @@ sleep 3
 # Create new hotspot
 nmcli device wifi hotspot ifname wlan0 ssid "$SSID" password "$PASSWORD"
 
-# Configure band and channel (5GHz [802.11ac], channel 149)
+# Keep the hotspot down
+nmcli connection down Hotspot 2>/dev/null || true
+
+# Configure wifi band to 5GHz (802.11ac)
 nmcli connection modify Hotspot wifi.band a
-nmcli connection modify Hotspot wifi.channel 149
+
+# Disable any 802.1X authentication that might interfere
+nmcli connection modify Hotspot 802-1x.eap ""
 
 # Enable auto-connect on boot
 nmcli connection modify Hotspot connection.autoconnect yes
 
 # Restart hotspot with new settings
-nmcli connection down Hotspot 2>/dev/null || true
 nmcli connection up Hotspot
 
 print_status "WiFi hotspot created"
