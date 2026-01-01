@@ -5,18 +5,15 @@ import {
   TouchableOpacity,
   Platform,
   StatusBar,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 
 interface TopBarProps {
   hasActiveConnection?: boolean;
-  showBackButton?: boolean;
 }
 
-export default function TopBar({
-  hasActiveConnection,
-  showBackButton,
-}: TopBarProps) {
+export default function TopBar({ hasActiveConnection }: TopBarProps) {
   const router = useRouter();
 
   const handleActiveConnectionPress = () => {
@@ -32,18 +29,12 @@ export default function TopBar({
       <StatusBar barStyle="light-content" />
       <View style={styles.content}>
         <View style={styles.leftSection}>
-          {showBackButton ? (
-            <TouchableOpacity
-              onPress={handleBackPress}
-              style={styles.backButton}
-            >
-              <Text style={styles.backText}>←</Text>
-            </TouchableOpacity>
-          ) : (
-            <Text style={styles.logoText}>roam</Text>
-          )}
+          <Image
+            source={require("../assets/images/logo.jpg")}
+            style={styles.logoImage}
+          />
         </View>
-        {hasActiveConnection && !showBackButton && (
+        {hasActiveConnection && (
           <TouchableOpacity
             style={styles.activeButton}
             onPress={handleActiveConnectionPress}
@@ -60,7 +51,7 @@ export default function TopBar({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#E20074",
-    paddingTop: Platform.OS === "ios" ? 50 : StatusBar.currentHeight,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   content: {
     height: 56,
@@ -72,6 +63,13 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  logoImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderColor: "white",
+    borderWidth: 1,
   },
   logoText: {
     color: "white",

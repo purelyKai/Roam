@@ -112,7 +112,7 @@ export default function ActiveSessionScreen() {
 
   return (
     <View style={styles.container}>
-      <TopBar hasActiveConnection={true} showBackButton={true} />
+      <TopBar hasActiveConnection={true} />
       <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.contentContainer}>

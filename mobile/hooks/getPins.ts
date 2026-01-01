@@ -12,7 +12,6 @@ export type Pin = {
   price?: number;
   ssid?: string;
   stripePaymentId?: string;
-  allowedListId?: string | null;
 };
 
 type UseGetPinsOptions = {
@@ -21,14 +20,10 @@ type UseGetPinsOptions = {
   defaultRadius?: number;
 };
 
-const DEFAULT_BACKEND = "http://10.0.0.168:5835/";
-
 /**
- * Resolve BACKEND_URL from environment or global fallback.
- * In Expo, use EXPO_PUBLIC_ prefixed variables.
+ * Resolve EXPO_PUBLIC_BACKEND_URL from environment
  */
 function getBackendUrl() {
-  // Expo public env var (accessible in client)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const expoPublic = (process as any).env?.EXPO_PUBLIC_BACKEND_URL;
   if (
@@ -38,16 +33,7 @@ function getBackendUrl() {
   ) {
     return expoPublic.replace(/\/+$/, "");
   }
-
-  // Fallback to legacy BACKEND_URL
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const env =
-    (process && (process as any).env && (process as any).env.BACKEND_URL) ||
-    (global as any).BACKEND_URL;
-  if (env && typeof env === "string" && env.trim().length > 0)
-    return env.replace(/\/+$/, "");
-
-  return DEFAULT_BACKEND;
+  throw new Error("EXPO_PUBLIC_BACKEND_URL is not defined");
 }
 
 /**

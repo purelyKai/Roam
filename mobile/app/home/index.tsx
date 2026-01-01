@@ -9,13 +9,6 @@ import useGetPins, { Pin } from "@/hooks/getPins";
 import BusinessModal from "@/components/BusinessModal";
 
 export default function Index() {
-  const initialRegion = {
-    latitude: 37.78825,
-    longitude: -122.4324,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121,
-  };
-
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
@@ -57,10 +50,7 @@ export default function Index() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TopBar
-        hasActiveConnection={hasActiveConnection}
-        showBackButton={false}
-      />
+      <TopBar hasActiveConnection={hasActiveConnection} />
 
       <MapView
         style={styles.map}
@@ -96,7 +86,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffff",
   },
   content: {
     flex: 1,
