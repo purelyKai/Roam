@@ -1,8 +1,54 @@
-# Welcome to your Expo app 👋
+# Roam Mobile App 📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is the mobile app for Roam, built with [Expo](https://expo.dev) and React Native.
 
-## Get started
+## Project Structure
+
+```
+mobile/
+├── src/                       # All source code lives here
+│   ├── app/                   # Expo Router - file-based routing
+│   │   ├── _layout.tsx        # Root layout
+│   │   ├── index.tsx          # Entry redirect
+│   │   ├── home/              # Home screen
+│   │   │   └── index.tsx
+│   │   └── pages/             # Additional pages
+│   │       └── ElapsedTime.tsx
+│   ├── assets/                # Static assets (images, fonts, etc.)
+│   │   └── images/
+│   │       └── logo.png
+│   ├── components/            # Reusable UI components
+│   │   ├── index.ts           # Barrel export
+│   │   ├── BusinessModal.tsx
+│   │   └── TopBar.tsx
+│   ├── constants/             # App-wide constants
+│   │   └── index.ts
+│   ├── hooks/                 # Custom React hooks
+│   │   ├── index.ts
+│   │   └── getPins.ts
+│   ├── types/                 # TypeScript type definitions
+│   │   └── index.ts
+│   └── utils/                 # Utility functions
+│       ├── index.ts
+│       └── stripeCheckout.ts
+├── app.json                   # Expo configuration
+├── package.json               # Dependencies
+└── tsconfig.json              # TypeScript configuration
+```
+
+## Import Aliases
+
+The project uses the `@/` path alias configured in `tsconfig.json`:
+
+```typescript
+// Import from src directory
+import { TopBar, BusinessModal } from "@/src/components";
+import useGetPins from "@/src/hooks/getPins";
+import { Checkout } from "@/src/utils";
+import { COLORS, STORAGE_KEYS } from "@/src/constants";
+```
+
+## Get Started
 
 1. Install dependencies
 
@@ -16,35 +62,49 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+In the output, you'll find options to open the app in a:
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
 - [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Development
 
-## Get a fresh project
+All source code is located in the `src/` directory:
 
-When you're ready, run:
+- **src/app/** - Contains all route files. This project uses [Expo Router file-based routing](https://docs.expo.dev/router/introduction).
+- **src/components/** - Add reusable UI components here
+- **src/hooks/** - Add custom React hooks here
+- **src/utils/** - Add utility/helper functions here
+- **src/constants/** - Add app-wide constants here
+- **src/types/** - Add TypeScript type definitions here
+- **src/assets/** - Add images, fonts, and other static assets here
 
-```bash
-npm run reset-project
+## Configuration
+
+The app directory is configured in `app.json`:
+
+```json
+{
+  "plugins": [
+    [
+      "expo-router",
+      {
+        "root": "./src/app"
+      }
+    ]
+  ]
+}
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Learn More
 
-## Learn more
+- [Expo documentation](https://docs.expo.dev/)
+- [Expo Router documentation](https://docs.expo.dev/router/introduction/)
+- [React Native documentation](https://reactnative.dev/)
 
-To learn more about developing your project with Expo, look at the following resources:
+## Join the Community
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Expo on GitHub](https://github.com/expo/expo)
+- [Discord community](https://chat.expo.dev)

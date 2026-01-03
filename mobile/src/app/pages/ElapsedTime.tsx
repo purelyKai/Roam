@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Progress from "react-native-progress";
-import TopBar from "@/components/TopBar";
+import { TopBar } from "@/src/components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Checkout } from "@/utils/stripeCheckout";
+import { Checkout } from "@/src/utils";
 import * as Linking from "expo-linking";
 
 const STORAGE_KEY = "@roam_remaining_time";

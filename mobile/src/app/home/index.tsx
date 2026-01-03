@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TopBar from "../../components/TopBar";
+import { TopBar, BusinessModal } from "@/src/components";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import * as Location from "expo-location";
-import useGetPins, { Pin } from "@/hooks/getPins";
-import BusinessModal from "@/components/BusinessModal";
+import useGetPins, { Pin } from "@/src/hooks/getPins";
 
 export default function Index() {
   const [location, setLocation] = useState<Location.LocationObject | null>(

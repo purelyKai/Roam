@@ -30,7 +30,7 @@ export default function TopBar({ hasActiveConnection }: TopBarProps) {
       <View style={styles.content}>
         <View style={styles.leftSection}>
           <Image
-            source={require("../assets/images/logo.png")}
+            source={require("@/src/assets/images/logo.png")}
             style={styles.logoImage}
           />
         </View>

@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useState } from "react";
-import { Checkout } from "@/utils/stripeCheckout";
+import { Checkout } from "@/src/utils/stripeCheckout";
 
 interface BusinessModalProps {
   businessName: string;
