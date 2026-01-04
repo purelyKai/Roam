@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Platform } from "react-native";
-import { TopBar, BusinessModal } from "@/src/components";
+import { BusinessModal } from "@/src/components";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import * as Location from "expo-location";
@@ -47,8 +47,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <TopBar />
-
       <MapView
         style={styles.map}
         provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}

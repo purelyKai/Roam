@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "./types";
 import HomeScreen from "../screens/HomeScreen";
 import ElapsedTimeScreen from "../screens/ElapsedTimeScreen";
+import { TopBar } from "../components";
 
 const Tab = createBottomTabNavigator<RootBottomTabParamList>();
 
@@ -10,8 +11,8 @@ export default function RootNavigator() {
     <Tab.Navigator
       initialRouteName="HomeTab"
       screenOptions={{
-        lazy: true,
-        headerShown: false,
+        lazy: false,
+        header: () => <TopBar />,
       }}
     >
       <Tab.Screen
