@@ -38,12 +38,6 @@ export default {
     },
     plugins: [
       [
-        "expo-router",
-        {
-          root: "./src/app",
-        },
-      ],
-      [
         "expo-location",
         {
           locationAlwaysAndWhenInUsePermission:
@@ -52,7 +46,6 @@ export default {
       ],
     ],
     experiments: {
-      typedRoutes: true,
       reactCompiler: true,
     },
   },

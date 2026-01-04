@@ -7,7 +7,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import useGetPins, { Pin } from "@/src/hooks/getPins";
 
-export default function Index() {
+export default function HomeScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
@@ -57,8 +57,8 @@ export default function Index() {
         initialRegion={{
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
-          latitudeDelta: 0.0122,
-          longitudeDelta: 0.0122,
+          latitudeDelta: 0.008,
+          longitudeDelta: 0.008,
         }}
         showsUserLocation={true}
         showsMyLocationButton={true}

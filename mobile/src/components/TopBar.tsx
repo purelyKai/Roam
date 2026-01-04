@@ -7,21 +7,25 @@ import {
   StatusBar,
   Image,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "@/src/navigation/types";
 
 interface TopBarProps {
   hasActiveConnection?: boolean;
 }
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 export default function TopBar({ hasActiveConnection }: TopBarProps) {
-  const router = useRouter();
+  const navigation = useNavigation<NavigationProp>();
 
   const handleActiveConnectionPress = () => {
-    router.push("/pages/ElapsedTime");
+    navigation.navigate("ElapsedTime");
   };
 
   const handleBackPress = () => {
-    router.back();
+    navigation.goBack();
   };
 
   return (

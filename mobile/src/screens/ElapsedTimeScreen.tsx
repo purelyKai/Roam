@@ -16,7 +16,7 @@ import * as Linking from "expo-linking";
 
 const STORAGE_KEY = "@roam_remaining_time";
 
-export default function ActiveSessionScreen() {
+export default function ElapsedTimeScreen() {
   const [remainingTime, setRemainingTime] = useState(0);
   const [autoExtend, setAutoExtend] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -166,7 +166,6 @@ export default function ActiveSessionScreen() {
   );
 }
 
-// 🎨 Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

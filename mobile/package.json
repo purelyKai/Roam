@@ -1,6 +1,5 @@
 {
   "name": "roam",
-  "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
@@ -14,6 +13,7 @@
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+    "@react-navigation/native-stack": "^7.9.0",
     "@stripe/stripe-react-native": "^0.50.3",
     "expo": "~54.0.13",
     "expo-constants": "~18.0.9",
@@ -22,7 +22,6 @@
     "expo-image": "~3.0.9",
     "expo-linking": "~8.0.8",
     "expo-location": "~19.0.7",
-    "expo-router": "~6.0.11",
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
     "expo-symbols": "~1.0.7",
