@@ -1,22 +1,22 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 
-export type RootStackParamList = {
-  Home: undefined;
-  ElapsedTime: undefined;
+export type RootBottomTabParamList = {
+  HomeTab: undefined;
+  ElapsedTimeTab: undefined;
 };
 
-export type HomeScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  "Home"
+export type HomeTabScreenProps = BottomTabScreenProps<
+  RootBottomTabParamList,
+  "HomeTab"
 >;
 
-export type ElapsedTimeScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  "ElapsedTime"
+export type ElapsedTimeTabScreenProps = BottomTabScreenProps<
+  RootBottomTabParamList,
+  "ElapsedTimeTab"
 >;
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootBottomTabParamList {}
   }
 }

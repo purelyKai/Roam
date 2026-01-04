@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Platform } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { TopBar, BusinessModal } from "@/src/components";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
@@ -13,7 +12,6 @@ export default function HomeScreen() {
   );
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const hasActiveConnection = true;
   const { pins } = useGetPins(
     location
       ? {
@@ -48,8 +46,8 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TopBar hasActiveConnection={hasActiveConnection} />
+    <View style={styles.container}>
+      <TopBar />
 
       <MapView
         style={styles.map}
@@ -78,7 +76,7 @@ export default function HomeScreen() {
         onClose={() => setSelectedPin(null)}
         businessIcon={selectedPin?.iconUrl || ""}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

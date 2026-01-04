@@ -112,7 +112,7 @@ export default function ElapsedTimeScreen() {
 
   return (
     <View style={styles.container}>
-      <TopBar hasActiveConnection={true} />
+      <TopBar />
       <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.contentContainer}>
