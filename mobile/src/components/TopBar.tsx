@@ -1,16 +1,18 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppSelector } from "@/src/store/hooks";
 import { colors, spacing, borderRadius, typography } from "../constants";
 
 export default function TopBar() {
   const insets = useSafeAreaInsets();
-  const hasActiveConnection = true;
+  const isActive = useAppSelector((state) => state.connection.isActive);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Image
         source={require("@/src/assets/images/logo.png")}
         style={styles.logo}
+        fadeDuration={0}
       />
 
       <TouchableOpacity style={styles.statusButton} activeOpacity={0.7}>
@@ -18,14 +20,12 @@ export default function TopBar() {
           style={[
             styles.statusDot,
             {
-              backgroundColor: hasActiveConnection
-                ? colors.success
-                : colors.white,
+              backgroundColor: isActive ? colors.success : colors.white,
             },
           ]}
         />
         <Text style={styles.statusText}>
-          {hasActiveConnection ? "Active" : "Inactive"}
+          {isActive ? "Active" : "Inactive"}
         </Text>
       </TouchableOpacity>
     </View>

@@ -5,34 +5,98 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  ScrollView,
+  Alert,
 } from "react-native";
-import { useState } from "react";
-import { Checkout } from "@/src/utils/stripeCheckout";
+import { useState, useEffect } from "react";
+import * as Linking from "expo-linking";
+import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
+import { connect } from "@/src/store/slices/connectionSlice";
+import { Pin } from "@/src/hooks/getPins";
+import {
+  Checkout,
+  MOCK_PAYMENTS,
+  DEFAULT_PRICE_OPTION,
+} from "@/src/utils/stripeCheckout";
 
 interface BusinessModalProps {
-  businessName: string;
-  businessIcon: string;
-  visible: boolean;
+  pin: Pin | null;
   onClose: () => void;
 }
 
-const BusinessModal = ({
-  businessName,
-  businessIcon,
-  visible,
-  onClose,
-}: BusinessModalProps) => {
-  const handleCheckout = () => {
-    console.log("Checking out for 30 minutes");
-    Checkout("price_1SJlk86PfUH9aqsh1rZ8BhBY", 1);
+const BusinessModal = ({ pin, onClose }: BusinessModalProps) => {
+  const dispatch = useAppDispatch();
+  const isActive = useAppSelector((state) => state.connection.isActive);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const businessName = pin?.name || "Untitled";
+  const businessIcon =
+    pin?.iconUrl ||
+    Image.resolveAssetSource(require("@/src/assets/images/placeholder.jpg"))
+      .uri;
+
+  const handleCheckout = async () => {
+    if (!pin) {
+      Alert.alert("Error", "No business selected");
+      return;
+    }
+
+    if (isProcessingPayment) return;
+
+    try {
+      setIsProcessingPayment(true);
+
+      if (MOCK_PAYMENTS) {
+        // Mock successful payment - skip Stripe
+        dispatch(connect({ pin, duration: DEFAULT_PRICE_OPTION.minutes }));
+        Alert.alert(
+          "Connected!",
+          `You're now connected to ${businessName} for ${DEFAULT_PRICE_OPTION.minutes} minutes.`
+        );
+        setIsProcessingPayment(false);
+        onClose();
+        return;
+      }
+
+      await Checkout(DEFAULT_PRICE_OPTION.priceId, 1);
+    } catch (error) {
+      console.error("Checkout error:", error);
+      Alert.alert("Error", "Failed to process payment. Please try again.");
+      setIsProcessingPayment(false);
+    }
   };
+
+  // Handle URL when app opens from Stripe redirect
+  useEffect(() => {
+    const handleUrl = async (url: string) => {
+      if (url.includes("checkout-success") && pin) {
+        const params = Linking.parse(url).queryParams as { minutes?: string };
+        if (params.minutes) {
+          const minutes = parseInt(params.minutes, 10);
+          if (!isNaN(minutes)) {
+            dispatch(connect({ pin, duration: minutes }));
+            Alert.alert(
+              "Connected!",
+              `You're now connected to ${businessName} for ${minutes} minutes.`
+            );
+            setIsProcessingPayment(false);
+            onClose();
+          }
+        }
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", ({ url }) =>
+      handleUrl(url)
+    );
+
+    return () => subscription.remove();
+  }, [pin, businessName, dispatch, onClose]);
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={visible}
+      visible={pin !== null}
       onRequestClose={onClose}
     >
       <View style={styles.modalOverlay}>
@@ -46,16 +110,37 @@ const BusinessModal = ({
             <Text style={styles.businessName}>{businessName}</Text>
           </View>
 
-          <View style={styles.circleButtonContainer}>
-            <TouchableOpacity
-              style={styles.circleButton}
-              onPress={handleCheckout}
-            >
-              <Text style={styles.circleButtonPrice}>$0.50</Text>
-              <Text style={styles.circleButtonText}>30 min</Text>
-              <Text style={styles.circleButtonText}>WiFi</Text>
-            </TouchableOpacity>
-          </View>
+          {isActive ? (
+            <View style={styles.alreadyConnectedContainer}>
+              <Text style={styles.alreadyConnectedText}>Already Connected</Text>
+              <Text style={styles.alreadyConnectedSubtext}>
+                You're currently connected to another network. Disconnect first
+                to connect here.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.circleButtonContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.circleButton,
+                  isProcessingPayment && styles.disabledButton,
+                ]}
+                onPress={handleCheckout}
+                disabled={isProcessingPayment}
+              >
+                <Text style={styles.circleButtonPrice}>
+                  {DEFAULT_PRICE_OPTION.price}
+                </Text>
+                <Text style={styles.circleButtonText}>
+                  {DEFAULT_PRICE_OPTION.minutes} min
+                </Text>
+                <Text style={styles.circleButtonText}>WiFi</Text>
+              </TouchableOpacity>
+              {isProcessingPayment && (
+                <Text style={styles.processingText}>Processing...</Text>
+              )}
+            </View>
+          )}
         </View>
       </View>
     </Modal>
@@ -126,6 +211,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
   },
+  disabledButton: {
+    opacity: 0.5,
+  },
   circleButtonPrice: {
     color: "white",
     fontSize: 36,
@@ -136,6 +224,28 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 20,
     fontWeight: "600",
+  },
+  processingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#888",
+  },
+  alreadyConnectedContainer: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
+  alreadyConnectedText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#E20074",
+    marginBottom: 12,
+  },
+  alreadyConnectedSubtext: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 24,
   },
 });
 

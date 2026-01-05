@@ -1,5 +1,5 @@
 // Theme exports
 export * from "./theme";
 
-// Config exports
-export * from "./config";
+// Environment variables
+export * from "./env";

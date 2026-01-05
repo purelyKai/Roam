@@ -1,41 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Platform } from "react-native";
-import { BusinessModal } from "@/src/components";
+import React, { useState } from "react";
+import { View, StyleSheet, Text, Image, Platform } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-
-import * as Location from "expo-location";
+import { BusinessModal } from "@/src/components";
 import useGetPins, { Pin } from "@/src/hooks/getPins";
+import { RootState } from "@/src/store/store";
+import { useAppSelector } from "@/src/store/hooks";
+import { useLocationWatcher } from "@/src/hooks/useLocationWatcher";
 
 export default function HomeScreen() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
-  );
+  useLocationWatcher();
+
+  const location = useAppSelector((state: RootState) => state.location.current);
   const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const { pins } = useGetPins(
-    location
-      ? {
-          lat: location.coords.latitude,
-          lng: location.coords.longitude,
-          radius: 2500,
-        }
-      : null
+    location?.coords.latitude ?? null,
+    location?.coords.longitude ?? null
   );
-
-  useEffect(() => {
-    async function getCurrentLocation() {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    }
-
-    getCurrentLocation();
-  }, []);
 
   if (!location) {
     return (
@@ -68,12 +49,7 @@ export default function HomeScreen() {
           />
         ))}
       </MapView>
-      <BusinessModal
-        businessName={selectedPin?.name || ""}
-        visible={selectedPin !== null}
-        onClose={() => setSelectedPin(null)}
-        businessIcon={selectedPin?.iconUrl || ""}
-      />
+      <BusinessModal pin={selectedPin} onClose={() => setSelectedPin(null)} />
     </View>
   );
 }
@@ -81,10 +57,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffffff",
-  },
-  content: {
-    flex: 1,
+    backgroundColor: "white",
   },
   map: {
     flex: 1,
