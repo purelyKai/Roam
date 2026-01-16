@@ -2,11 +2,11 @@
  * WiFi Manager - Handles WiFi connections using react-native-wifi-reborn
  *
  * NOTE: react-native-wifi-reborn requires native modules and will NOT work in Expo Go.
- * For development in Expo Go, WiFi connection will fail gracefully and prompt
- * the user to manually connect to the WiFi network.
- *
+ * For development in Expo Go with MOCK_MODE=true, WiFi connections are simulated.
  * For production builds (expo prebuild / EAS Build), the native modules will work.
  */
+
+import { MOCK_MODE } from "../constants";
 
 // Default gateway IP for edge devices
 const DEFAULT_GATEWAY_IP = "192.168.4.1";
@@ -45,6 +45,15 @@ export async function connectToWifi(
   ssid: string,
   password?: string | null
 ): Promise<WifiConnectionResult> {
+  // Mock mode - simulate successful connection for Expo Go development
+  if (MOCK_MODE) {
+    console.log(`🧪 MOCK_MODE: Simulating WiFi connection to ${ssid}`);
+    return {
+      success: true,
+      message: `[MOCK] Connected to ${ssid}`,
+    };
+  }
+
   try {
     const moduleAvailable = await isWifiModuleAvailable();
 

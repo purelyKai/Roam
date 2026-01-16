@@ -2,7 +2,7 @@
  * Session API - Backend communication for WiFi session management
  */
 
-import { BACKEND_URL } from "../constants";
+import { BACKEND_URL, MOCK_MODE } from "../constants";
 import { getDeviceId } from "./captivePortal";
 
 /**
@@ -25,14 +25,33 @@ export interface SessionResponse {
  * @param hotspotId - The hotspot ID
  * @param durationMinutes - Session duration in minutes
  * @param paymentIntentId - Stripe Payment Intent ID
+ * @param ssid - WiFi SSID (optional, for mock mode)
+ * @param password - WiFi password (optional, for mock mode)
  * @returns Session details with token and WiFi credentials
  */
 export async function createSession(
   hotspotId: number | string,
   durationMinutes: number,
-  paymentIntentId?: string
+  paymentIntentId?: string,
+  ssid?: string,
+  password?: string
 ): Promise<SessionResponse> {
   const deviceId = await getDeviceId();
+
+  // Mock mode - return simulated session for Expo Go development
+  if (MOCK_MODE) {
+    console.log("🧪 MOCK_MODE: Creating simulated session");
+    const now = Date.now();
+    return {
+      sessionToken: `mock_session_${now}`,
+      ssid: ssid || "MockWiFi",
+      password: password || "mock123",
+      durationMinutes,
+      expiresAt: now + durationMinutes * 60 * 1000,
+      pinId: hotspotId.toString(),
+      deviceId,
+    };
+  }
 
   const response = await fetch(`${BACKEND_URL}/api/session/create`, {
     method: "POST",

@@ -2,6 +2,9 @@
  * Utils barrel export
  */
 
+// Re-export MOCK_MODE for convenience
+export { MOCK_MODE } from "../constants";
+
 // Stripe payment
 export {
   processPayment,

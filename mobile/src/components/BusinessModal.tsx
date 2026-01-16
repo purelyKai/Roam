@@ -71,7 +71,9 @@ const BusinessModal = ({ hotspot, onClose }: BusinessModalProps) => {
         const session = await createSession(
           hotspot.id,
           minutes,
-          paymentIntentId
+          paymentIntentId,
+          hotspot.ssid,
+          hotspot.password ?? undefined
         );
 
         // Update Redux state
