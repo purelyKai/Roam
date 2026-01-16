@@ -6,64 +6,9 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
-	// REAL IMPLEMENTATION (uncomment when backend is ready):
-	// "bytes"
-	// "encoding/json"
 )
 
-func (dm *DeviceManager) checkBackendAuthorization(mac string) (bool, int) {
-	// MOCK: Always return authorized for testing
-	log.Printf("Checking authorization for %s (MOCKED - always returns true)", mac)
-	return true, 30 // 30 minutes
-
-	/* REAL IMPLEMENTATION (uncomment when backend is ready):
-
-	   req := AuthRequest{
-	       DeviceMAC:  mac,
-	       PiDeviceID: dm.piDeviceID,
-	   }
-
-	   body, err := json.Marshal(req)
-	   if err != nil {
-	       log.Printf("Failed to marshal request: %v", err)
-	       return false, 0
-	   }
-
-	   client := &http.Client{Timeout: 10 * time.Second}
-
-	   resp, err := client.Post(
-	       dm.backendURL + "/api/pi/authorize-mac",
-	       "application/json",
-	       bytes.NewBuffer(body),
-	   )
-
-	   if err != nil {
-	       log.Printf("Backend error: %v", err)
-	       return false, 0
-	   }
-	   defer resp.Body.Close()
-
-	   if resp.StatusCode != 200 {
-	       log.Printf("Backend returned status %d", resp.StatusCode)
-	       return false, 0
-	   }
-
-	   var authResp AuthResponse
-	   if err := json.NewDecoder(resp.Body).Decode(&authResp); err != nil {
-	       log.Printf("Failed to parse response: %v", err)
-	       return false, 0
-	   }
-
-	   if authResp.Authorized {
-	       log.Printf("✓ Backend authorized %s for %d minutes", mac, authResp.DurationMinutes)
-	   } else {
-	       log.Printf("✗ Backend denied authorization for %s", mac)
-	   }
-
-	   return authResp.Authorized, authResp.DurationMinutes
-	*/
-}
-
+// sendHeartbeat sends periodic heartbeat signals to the backend server
 func sendHeartbeat(dm *DeviceManager) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -76,8 +21,13 @@ func sendHeartbeat(dm *DeviceManager) {
 		currentSeq := atomic.LoadInt64(&sequenceID)
 		timestamp := time.Now().Unix()
 
-		url := fmt.Sprintf("%s/healthcheck?device_id=%s&sequence_id=%d&timestamp=%d",
-			dm.backendURL, dm.piDeviceID, currentSeq, timestamp)
+		// Include session count in heartbeat
+		dm.mu.RLock()
+		sessionCount := len(dm.sessions)
+		dm.mu.RUnlock()
+
+		url := fmt.Sprintf("%s/healthcheck?device_id=%s&sequence_id=%d&timestamp=%d&sessions=%d",
+			dm.backendURL, dm.piDeviceID, currentSeq, timestamp, sessionCount)
 
 		resp, err := client.Get(url)
 		if err != nil {
@@ -88,7 +38,7 @@ func sendHeartbeat(dm *DeviceManager) {
 		if resp.StatusCode != http.StatusOK {
 			log.Printf("💓⚠️ Heartbeat returned status %d", resp.StatusCode)
 		} else {
-			log.Printf("💓 Heartbeat #%d sent successfully", currentSeq)
+			log.Printf("💓 Heartbeat #%d sent successfully (sessions: %d)", currentSeq, sessionCount)
 		}
 
 		resp.Body.Close()

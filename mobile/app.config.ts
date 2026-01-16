@@ -23,7 +23,7 @@ export default {
           "Roam uses your location to support tracking while traveling.",
         NSLocationAlwaysUsageDescription:
           "Roam needs background location access to function correctly.",
-        UIBackgroundModes: ["location"],
+        UIBackgroundModes: ["location", "fetch"],
       },
     },
     android: {
@@ -35,6 +35,15 @@ export default {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
       },
+      permissions: [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "ACCESS_WIFI_STATE",
+        "CHANGE_WIFI_STATE",
+      ],
     },
     plugins: [
       [
@@ -42,6 +51,13 @@ export default {
         {
           locationAlwaysAndWhenInUsePermission:
             "Allow Roam to use your location.",
+        },
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          merchantIdentifier: "merchant.com.roam.mobile",
+          enableGooglePay: true,
         },
       ],
     ],

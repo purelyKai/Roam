@@ -1,7 +1,33 @@
+/**
+ * Utils barrel export
+ */
+
+// Stripe payment
 export {
-  Checkout,
-  MOCK_PAYMENTS,
-  PRICE_OPTIONS,
-  DEFAULT_PRICE_OPTION,
-} from "./stripeCheckout";
-export type { PriceOption } from "./stripeCheckout";
+  processPayment,
+  createPaymentIntent,
+  formatPrice,
+  calculatePrice,
+  DURATION_OPTIONS,
+  type PaymentIntentResponse,
+} from "./stripePayment";
+
+// Session API
+export {
+  createSession,
+  validateSession,
+  extendSession,
+  invalidateSession,
+  getSession,
+  type SessionResponse,
+} from "./sessionApi";
+
+// Captive Portal
+export {
+  getDeviceId,
+  authenticateWithCaptivePortal,
+  isBehindCaptivePortal,
+} from "./captivePortal";
+
+// WiFi Manager
+export { connectToWifi, getCurrentSSID } from "./wifiManager";

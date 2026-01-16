@@ -107,15 +107,15 @@ public class DeviceHealthController {
     
     // Inner class to store heartbeat data
     private static class DeviceHeartbeat {
-        String deviceId;
+        // String deviceId;
         long sequenceId;
-        long clientTimestamp;
+        // long clientTimestamp;
         long serverTimestamp;
         
         DeviceHeartbeat(String deviceId, long sequenceId, long clientTimestamp, long serverTimestamp) {
-            this.deviceId = deviceId;
+            // this.deviceId = deviceId;
             this.sequenceId = sequenceId;
-            this.clientTimestamp = clientTimestamp;
+            // this.clientTimestamp = clientTimestamp;
             this.serverTimestamp = serverTimestamp;
         }
     }

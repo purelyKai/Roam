@@ -1,19 +1,18 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text, Image, Platform } from "react-native";
+import { View, StyleSheet, Text, Platform } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BusinessModal } from "@/src/components";
-import useGetPins, { Pin } from "@/src/hooks/getPins";
+import { useHotspots, Hotspot, useLocationWatcher } from "@/src/hooks";
 import { RootState } from "@/src/store/store";
 import { useAppSelector } from "@/src/store/hooks";
-import { useLocationWatcher } from "@/src/hooks/useLocationWatcher";
 
 export default function HomeScreen() {
   useLocationWatcher();
 
   const location = useAppSelector((state: RootState) => state.location.current);
-  const [selectedPin, setSelectedPin] = useState<Pin | null>(null);
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
 
-  const { pins } = useGetPins(
+  const { hotspots } = useHotspots(
     location?.coords.latitude ?? null,
     location?.coords.longitude ?? null
   );
@@ -40,16 +39,23 @@ export default function HomeScreen() {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
-        {pins.map((pin) => (
+        {hotspots.map((hotspot) => (
           <Marker
-            key={pin.id}
-            onPress={() => setSelectedPin(pin)}
-            coordinate={{ latitude: pin.lat, longitude: pin.lng }}
-            title={pin.name || "Untitled"}
+            key={hotspot.id}
+            onPress={() => setSelectedHotspot(hotspot)}
+            coordinate={{
+              latitude: hotspot.latitude,
+              longitude: hotspot.longitude,
+            }}
+            title={hotspot.name || "Untitled"}
+            pinColor={hotspot.isOnline ? "#E20074" : "#999"}
           />
         ))}
       </MapView>
-      <BusinessModal pin={selectedPin} onClose={() => setSelectedPin(null)} />
+      <BusinessModal
+        hotspot={selectedHotspot}
+        onClose={() => setSelectedHotspot(null)}
+      />
     </View>
   );
 }

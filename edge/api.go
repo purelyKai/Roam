@@ -14,8 +14,8 @@ func startAPIServer(dm *DeviceManager, port string) {
 	// Enable CORS for all routes
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/api/devices", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		handleGetDevices(w, r, dm)
+	mux.HandleFunc("/api/sessions", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		handleGetSessions(w, r, dm)
 	}))
 
 	mux.HandleFunc("/api/logs/stream", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
@@ -50,24 +50,15 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-type DeviceResponse struct {
-	MAC        string    `json:"mac"`
-	Status     string    `json:"status"`
-	GrantedAt  time.Time `json:"granted_at"`
-	ExpiresAt  time.Time `json:"expires_at"`
-	Duration   int       `json:"duration_minutes"`
-	TimeLeft   int       `json:"time_left_minutes"`
-	SignalInfo string    `json:"signal_info,omitempty"`
-}
-
-func handleGetDevices(w http.ResponseWriter, r *http.Request, dm *DeviceManager) {
+func handleGetSessions(w http.ResponseWriter, r *http.Request, dm *DeviceManager) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	devices := make([]DeviceResponse, 0, len(dm.devices))
 	now := time.Now()
 
-	for mac, session := range dm.devices {
+	// Token-based sessions
+	tokenSessions := make([]TokenSessionResponse, 0, len(dm.sessions))
+	for _, session := range dm.sessions {
 		timeLeft := int(session.ExpiresAt.Sub(now).Minutes())
 		if timeLeft < 0 {
 			timeLeft = 0
@@ -78,28 +69,22 @@ func handleGetDevices(w http.ResponseWriter, r *http.Request, dm *DeviceManager)
 			status = "expired"
 		}
 
-		// Get signal strength info
-		info := getDeviceInfo(mac)
-		signalInfo := ""
-		if signal, ok := info["signal"]; ok {
-			signalInfo = signal
-		}
-
-		devices = append(devices, DeviceResponse{
-			MAC:        mac,
-			Status:     status,
-			GrantedAt:  session.GrantedAt,
-			ExpiresAt:  session.ExpiresAt,
-			Duration:   session.Duration,
-			TimeLeft:   timeLeft,
-			SignalInfo: signalInfo,
+		tokenSessions = append(tokenSessions, TokenSessionResponse{
+			DeviceID:  session.DeviceID,
+			Status:    status,
+			GrantedAt: session.GrantedAt,
+			ExpiresAt: session.ExpiresAt,
+			Duration:  session.Duration,
+			TimeLeft:  timeLeft,
+			ActiveIPs: session.ActiveIPs,
+			UserID:    session.UserID,
 		})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"devices": devices,
-		"count":   len(devices),
+		"sessions":      tokenSessions,
+		"session_count": len(tokenSessions),
 	})
 }
 

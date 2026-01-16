@@ -9,22 +9,18 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Progress from "react-native-progress";
-import * as Linking from "expo-linking";
 import { useAppDispatch, useAppSelector } from "@/src/store/hooks";
+import { extendSession, disconnect } from "@/src/store/slices/connectionSlice";
 import {
-  extendConnection,
-  disconnect,
-} from "@/src/store/slices/connectionSlice";
-import {
-  Checkout,
-  MOCK_PAYMENTS,
-  PRICE_OPTIONS,
-  PriceOption,
-} from "@/src/utils/stripeCheckout";
+  processPayment,
+  DURATION_OPTIONS,
+  formatPrice,
+  calculatePrice,
+} from "@/src/utils";
 
 export default function ElapsedTimeScreen() {
   const dispatch = useAppDispatch();
-  const { isActive, connectedPin, expiryTime } = useAppSelector(
+  const { isActive, connectedHotspot, expiryTime } = useAppSelector(
     (state) => state.connection
   );
 
@@ -67,56 +63,49 @@ export default function ElapsedTimeScreen() {
       })
     : "--:--";
 
-  const handlePurchase = async (option: PriceOption) => {
-    if (isProcessingPayment) return;
+  // Handle purchasing additional time
+  const handlePurchase = async (durationMinutes: number) => {
+    if (isProcessingPayment || !connectedHotspot) return;
 
     try {
       setIsProcessingPayment(true);
 
-      if (MOCK_PAYMENTS) {
-        // Mock successful payment - skip Stripe
-        dispatch(extendConnection({ additionalDuration: option.minutes }));
-        Alert.alert(
-          "Success",
-          `Added ${option.minutes} minutes to your session!`
-        );
-        setIsProcessingPayment(false);
-        return;
-      }
+      // Process payment using Stripe
+      await processPayment(
+        connectedHotspot.id,
+        durationMinutes,
+        connectedHotspot.name
+      );
 
-      await Checkout(option.priceId);
+      // Calculate new expiry time
+      const additionalMs = durationMinutes * 60 * 1000;
+      const newExpiresAt = (expiryTime || Date.now()) + additionalMs;
+
+      dispatch(
+        extendSession({
+          additionalMinutes: durationMinutes,
+          newExpiresAt,
+        })
+      );
+
+      Alert.alert(
+        "Success",
+        `Added ${durationMinutes} minutes to your session!`
+      );
     } catch (error) {
       console.error("Payment error:", error);
-      Alert.alert("Error", "Failed to process payment. Please try again.");
+      const message =
+        error instanceof Error ? error.message : "Failed to process payment.";
+      if (message !== "Payment canceled") {
+        Alert.alert("Payment Error", message);
+      }
     } finally {
       setIsProcessingPayment(false);
     }
   };
 
-  // Handle URL when app opens from Stripe redirect
-  useEffect(() => {
-    const handleUrl = async (url: string) => {
-      if (url.includes("checkout-success")) {
-        const params = Linking.parse(url).queryParams as { minutes?: string };
-        if (params.minutes) {
-          const minutes = parseInt(params.minutes, 10);
-          if (!isNaN(minutes) && isActive) {
-            dispatch(extendConnection({ additionalDuration: minutes }));
-            Alert.alert("Success", `Added ${minutes} minutes to your session!`);
-          }
-        }
-      }
-    };
-
-    const subscription = Linking.addEventListener("url", ({ url }) =>
-      handleUrl(url)
-    );
-
-    return () => subscription.remove();
-  }, [isActive, dispatch]);
-
   // Show message if not connected
-  if (!isActive || !connectedPin) {
+  if (!isActive || !connectedHotspot) {
     return (
       <View style={styles.container}>
         <SafeAreaView
@@ -134,6 +123,9 @@ export default function ElapsedTimeScreen() {
     );
   }
 
+  // Get price per minute from hotspot
+  const pricePerMinuteCents = connectedHotspot.pricePerMinuteCents || 2;
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={["bottom", "left", "right"]}>
@@ -141,7 +133,7 @@ export default function ElapsedTimeScreen() {
           <View style={styles.contentContainer}>
             {/* Header */}
             <Text style={styles.title}>
-              {connectedPin.name || "WiFi Connection"}
+              {connectedHotspot.name || "WiFi Connection"}
             </Text>
             <Text style={styles.status}>✅ Connected — Secure session</Text>
 
@@ -169,18 +161,22 @@ export default function ElapsedTimeScreen() {
             {/* Info Card */}
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Keep your connection going</Text>
-              {PRICE_OPTIONS.map((option) => (
+              {DURATION_OPTIONS.map((option) => (
                 <TouchableOpacity
-                  key={option.label}
+                  key={option.minutes}
                   style={[
                     styles.optionButton,
                     isProcessingPayment && styles.disabledButton,
                   ]}
-                  onPress={() => handlePurchase(option)}
+                  onPress={() => handlePurchase(option.minutes)}
                   disabled={isProcessingPayment}
                 >
                   <Text style={styles.optionText}>{option.label}</Text>
-                  <Text style={styles.priceText}>{option.price}</Text>
+                  <Text style={styles.priceText}>
+                    {formatPrice(
+                      calculatePrice(pricePerMinuteCents, option.minutes)
+                    )}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>

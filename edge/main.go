@@ -3,7 +3,11 @@ package main
 import (
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 )
+
+const GATEWAY_IP = "192.168.4.1"
 
 func main() {
 	log.Println("🚀 Roam Edge Service Starting...")
@@ -18,16 +22,39 @@ func main() {
 	log.Printf("API Port: %s", apiPort)
 
 	dm := &DeviceManager{
-		devices:    make(map[string]*DeviceSession),
-		backendURL: backendURL,
-		piDeviceID: piDeviceID,
+		sessions:       make(map[string]*TokenSession),
+		deviceSessions: make(map[string]string),
+		ipSessions:     make(map[string]string),
+		backendURL:     backendURL,
+		piDeviceID:     piDeviceID,
 	}
 
-	// Start monitoring for new connections
-	go dm.monitorNewDevices()
+	// Setup graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	// Start cleanup of expired sessions
-	go dm.cleanupExpiredDevices()
+	go func() {
+		sig := <-sigChan
+		log.Printf("⚠️ Received signal %v, shutting down...", sig)
+
+		// Cleanup iptables rules
+		CleanupCaptivePortalRules(GATEWAY_IP, CAPTIVE_PORTAL_PORT)
+
+		os.Exit(0)
+	}()
+
+	log.Println("📡 Starting Captive Portal mode (token-based authentication)")
+
+	// Setup iptables rules for captive portal
+	if err := SetupCaptivePortalRules(GATEWAY_IP, CAPTIVE_PORTAL_PORT); err != nil {
+		log.Printf("⚠️ Failed to setup captive portal rules: %v", err)
+	}
+
+	// Start captive portal HTTP server
+	go startCaptivePortalServer(dm)
+
+	// Start cleanup of expired token sessions
+	go dm.cleanupExpiredTokenSessions()
 
 	// Start HTTP API server for dashboard
 	go startAPIServer(dm, apiPort)
@@ -35,7 +62,7 @@ func main() {
 	// Start health check service
 	go sendHeartbeat(dm)
 
-	log.Println("✅ Service running - monitoring for new devices...")
+	log.Println("✅ Service running - captive portal authentication enabled")
 
 	// Keep running
 	select {}
